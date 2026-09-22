@@ -69,6 +69,8 @@ Part 0의 목표는 전략을 잘하는 것이 아니라 테이블에서 일어�
 
 Part 1의 목표는 처음 받은 두 장의 특징을 읽고, 두 패를 비교하고, 포지션까지 반영해 플레이 가치를 판단하는 것이다. 다음 여덟 개 Lesson으로 구성한다.
 
+Part 1의 포지션 문제는 조건이 달라져 정답이 흔들리지 않도록 **6명이 참가하고, 유효 스택은 약 100BB이며, 앞선 모든 플레이어가 폴드한 미개봉 팟**을 기본 상황으로 사용한다. 이때 `플레이`는 콜로 따라가는 림프가 아니라 레이즈로 팟에 처음 참여한다는 뜻이다. 앱은 이 조건을 문제 화면과 해설에서 확인할 수 있게 표시한다.
+
 1. **핸드 표기 읽기**
    - `AKs`, `AQo`, `TT`와 같은 표기를 배운다.
 2. **좋은 시작 패의 네 가지 특징**
@@ -180,15 +182,14 @@ Lesson 결과 화면에는 정답 수, 배운 개념, 중요한 오답 설명, �
 
 다음 정보를 저장한다.
 
-- 현재 Part 식별자
-- 현재 Lesson 식별자
-- 마지막으로 완료한 학습 단계 번호
+- 가장 최근에 학습한 Part·Lesson·단계
+- Part별로 마지막에 학습한 Lesson과 완료 단계
 - 완료한 Lesson 목록
 - 완료한 Part 목록
 - Lesson별로 답한 문제 수와 정답 수
 - 최종 도전의 최고 점수
 
-사용자가 다시 방문하면 홈에서 마지막 학습으로 바로 이동하는 버튼을 보여준다. 진행 중인 Part에 다시 들어오면 마지막으로 끝낸 단계 다음부터 이어간다. 완료한 Part에 다시 들어오면 복습하기, 퀴즈 다시 풀기, 다음 Part 이동 중에서 선택할 수 있다.
+사용자가 다시 방문하면 홈에서 가장 최근 학습으로 바로 이동하는 버튼을 보여준다. 진행 중인 각 Part는 별도의 이어하기 위치를 보관하므로 Part 0을 중단하고 Part 1을 둘러본 뒤에도 Part 0의 마지막 위치가 사라지지 않는다. 완료한 Part에 다시 들어오면 복습하기, 퀴즈 다시 풀기, 다음 Part 이동 중에서 선택할 수 있다.
 
 사용자는 Part 하나의 진도 또는 전체 진도를 초기화할 수 있다. 실수로 삭제하지 않도록 초기화 전에 확인 창을 보여준다.
 
@@ -242,14 +243,21 @@ Course, Part, Lesson의 식별자는 문자열로 고정한다. 이 값은 브�
 React 컴포넌트가 브라우저의 `localStorage`를 직접 호출하지 않게 한다. 화면은 다음 인터페이스에만 의존한다.
 
 ```ts
+interface ProgressLoadResult {
+  progress: LearningProgress;
+  recovered: boolean;
+}
+
 interface ProgressRepository {
-  load(): Promise<LearningProgress>;
+  load(): Promise<ProgressLoadResult>;
   save(progress: LearningProgress): Promise<void>;
   reset(partId?: string): Promise<void>;
 }
 ```
 
 첫 MVP는 `LocalProgressRepository`를 사용한다. 나중에 Spring Boot를 연결할 때 `ApiProgressRepository`를 추가한다. 이때 학습 화면은 바꾸지 않고 저장소 구현만 교체하는 것을 목표로 한다.
+
+`recovered`는 저장된 데이터가 손상되었거나 지원하지 않는 버전이어서 새 진도로 복구했는지를 화면에 알려주는 값이다.
 
 ## 8. 데이터가 흐르는 과정
 
