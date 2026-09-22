@@ -145,6 +145,95 @@ p {
   text-decoration: none;
 }
 
+.learning-page {
+  max-width: 48rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: var(--space-6);
+  color: white;
+  font-weight: 700;
+}
+
+.lesson-header,
+.learning-session {
+  padding: clamp(1.25rem, 5vw, 2rem);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.lesson-header {
+  margin-bottom: var(--space-4);
+}
+
+.lesson-header h1 {
+  margin-bottom: var(--space-2);
+  font-size: clamp(1.8rem, 7vw, 2.8rem);
+}
+
+.lesson-header > p:last-child {
+  margin-bottom: 0;
+  color: var(--color-text-muted);
+}
+
+.learning-session {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.learning-session section,
+.learning-session fieldset {
+  margin: 0;
+}
+
+.learning-session fieldset {
+  display: grid;
+  gap: var(--space-3);
+  padding: 0;
+  border: 0;
+}
+
+.learning-session legend {
+  margin-bottom: var(--space-4);
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.learning-session label {
+  display: flex;
+  min-height: 3rem;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid #d9d6ce;
+  border-radius: 0.75rem;
+  background: var(--color-surface-muted);
+}
+
+.learning-session button {
+  min-height: 3rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background: var(--color-felt-800);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.learning-session button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.save-warning {
+  padding: var(--space-3) var(--space-4);
+  border-radius: 0.75rem;
+  background: #fff1c7;
+  color: #603f00;
+}
+
 @media (min-width: 48rem) {
   .part-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

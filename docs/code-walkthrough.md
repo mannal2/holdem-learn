@@ -122,3 +122,11 @@
 `progressReducer.ts`는 메모리 안의 진도를 변경하고, `LocalProgressRepository.ts`는 그 결과를 `localStorage`에 저장한다. React 화면은 `ProgressProvider`만 사용하므로 저장 위치를 알 필요가 없다. 나중에 Spring Boot를 붙일 때는 `ProgressRepository`를 구현한 API 저장소로 교체한다.
 
 저장된 JSON은 외부 입력이므로 TypeScript 타입 단언만 믿지 않고 버전과 필수 배열·객체를 다시 검사한다. 손상됐으면 새 진도로 복구하고 `recovered`를 통해 안내한다. `recent`는 홈의 가장 최근 학습, `resumeByPart`는 Part별 이어하기 위치를 담당하므로 Part 1을 둘러봐도 Part 0 위치가 사라지지 않는다.
+
+## 6. Part 0 콘텐츠가 화면과 진도로 이어지는 과정
+
+`content/part0.ts`에는 여섯 Lesson의 제목, 설명, 문제, 정답과 해설만 들어 있다. 예를 들어 `goal-and-cards`의 첫 Step은 `type: 'explanation'`이므로 공통 `LearningStepRenderer`가 설명 화면을 고른다. 문제 Step으로 이동하면 같은 렌더러가 선택지를 만들고, `LearningSession`이 정답 확인과 다음 Step 이동을 담당한다. 따라서 Lesson마다 별도의 React 화면을 복사하지 않는다.
+
+주소 `/learn/part-0/goal-and-cards`를 열면 `router.tsx`가 `LearningPage`를 선택한다. 이 페이지는 주소의 ID로 Lesson 데이터를 찾고, `ProgressProvider`에서 해당 Part의 저장된 `stepIndex`를 읽어 `LearningSession`에 전달한다. 사용자가 정답을 확인하거나 다음으로 이동한 확정 시점에는 `confirmStep`이 호출되어 브라우저 저장소에 이어할 위치가 기록된다.
+
+콘텐츠 문구와 선택지를 바꾸려면 `frontend/src/content/part0.ts`만 수정한다. 새 문제는 해당 Lesson의 `steps` 배열에 고유한 `id`를 가진 `single-choice` 또는 `multi-choice` 객체로 추가한다. 정답 ID는 반드시 `options` 안의 ID와 같아야 하며, `part0.test.ts`와 콘텐츠 검증기가 잘못된 연결을 찾아준다.
