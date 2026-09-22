@@ -50,3 +50,53 @@
 - 홈 문구 또는 Part 소개 수정: `frontend/src/pages/HomePage.tsx`
 - 전체 색상과 간격 수정: `frontend/src/styles/tokens.css`
 - 공통 레이아웃과 반응형 기준 수정: `frontend/src/styles/global.css`
+
+## 2. 학습 콘텐츠를 표현하는 타입
+
+### 이번 단계가 제공하는 기능
+
+- 카드, Part, Lesson, 학습 단계, 진도를 TypeScript 객체로 표현한다.
+- 잘못된 Lesson 연결, 중복 ID, 없는 정답 같은 콘텐츠 작성 실수를 앱 실행 전에 찾는다.
+
+### 핵심 파일
+
+- `frontend/src/types/cards.ts`: 카드 숫자와 문양, 카드 한 장의 모양을 정의한다.
+- `frontend/src/types/course.ts`: 설명, 테이블 공개, 단일 선택, 복수 선택, 요약 Step과 Part·Lesson 구조를 정의한다.
+- `frontend/src/types/progress.ts`: 마지막 학습 위치와 점수 기록 형태를 정의한다.
+- `frontend/src/content/validateCourse.ts`: 실제 콘텐츠가 타입만 맞는 것을 넘어 서로 올바르게 연결됐는지 검사한다.
+
+### 데이터 예시
+
+```ts
+{
+  id: 'sample-question',
+  type: 'single-choice',
+  prompt: '상대의 베팅과 같은 금액을 내는 행동은?',
+  options: [
+    { id: 'call', label: '콜' },
+    { id: 'fold', label: '폴드' },
+  ],
+  correctOptionId: 'call',
+  explanation: '콜은 상대의 베팅과 같은 금액을 내는 행동입니다.',
+}
+```
+
+`type: 'single-choice'`를 보면 이후 학습 화면은 단일 선택 UI를 골라 표시할 수 있다. 콘텐츠는 정답과 해설만 알고 화면 이동이나 브라우저 저장 방법은 알지 못한다.
+
+### 이 구조를 선택한 이유
+
+- 콘텐츠와 화면 로직을 분리하면 문제를 추가할 때 React 화면 코드를 복사하지 않아도 된다.
+- TypeScript의 구분 가능한 union 타입은 Step 종류마다 필요한 값을 빠뜨리지 않게 한다.
+- Spring Boot를 추가할 때 이 타입들은 서버 응답 JSON과 프론트의 계약을 정하는 출발점이 된다.
+
+### 테스트가 막아주는 문제
+
+- 같은 Lesson ID를 두 번 사용해 진도 기록이 섞이는 문제
+- 선택지에 없는 값을 정답으로 적어 어떤 답도 맞지 않는 문제
+- Part가 존재하지 않는 Lesson을 가리키거나 Lesson이 비어 있는 문제
+
+### 나중에 변경할 위치
+
+- 새로운 카드 데이터 추가: `frontend/src/types/cards.ts`
+- 새로운 학습 Step 종류 추가: `frontend/src/types/course.ts`
+- 콘텐츠 연결 규칙 추가: `frontend/src/content/validateCourse.ts`
