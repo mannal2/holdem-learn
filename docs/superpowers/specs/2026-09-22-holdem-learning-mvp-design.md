@@ -1,212 +1,245 @@
-# Holdem Learning MVP Design
+# 홀덤 학습 MVP 설계 문서
 
-## 1. Purpose
+## 1. 프로젝트 목적
 
-Build a beginner-focused Texas Hold'em learning web app that changes the learner's mental model from “poker is decided by luck” to “poker is a sequence of decisions made with incomplete information.”
+홀덤을 처음 접하거나 아직 익숙하지 않은 사용자가 홀덤을 단순한 운 게임이 아니라 **제한된 정보를 바탕으로 더 좋은 결정을 반복하는 게임**으로 이해하도록 돕는 웹 학습 앱을 만든다.
 
-The first MVP contains Part 0 and Part 1 in one React application:
+첫 번째 최소 기능 제품(MVP)에는 Part 0과 Part 1을 함께 포함한다.
 
-- Part 0 teaches the learner to follow the flow of a hand.
-- Part 1 teaches the learner to evaluate starting hands and then adjust that evaluation for position.
+- Part 0에서는 한 판이 진행되는 흐름을 따라가는 방법을 배운다.
+- Part 1에서는 처음 받은 카드 두 장의 가치를 판단하고, 포지션에 따라 그 판단이 달라지는 이유를 배운다.
 
-The MVP validates the learning experience before a Spring Boot backend is introduced. Learning content and progress storage must nevertheless use clear interfaces so the later backend integration does not require rewriting the React screens.
+먼저 React로 학습 경험을 검증한 뒤 Spring Boot 백엔드를 연결한다. 다만 React 화면을 나중에 다시 만들지 않도록, 학습 콘텐츠와 진도 저장 기능은 처음부터 명확한 경계와 인터페이스를 사용한다.
 
-## 2. Audience and Success Criteria
+## 2. 주요 사용자와 성공 기준
 
-The primary audience is a complete or near-complete beginner who finds the rules, action order, and vocabulary difficult.
+주요 사용자는 족보, 행동 순서, 베팅 용어가 어렵게 느껴지는 완전 초보자 또는 입문자다.
 
-The MVP succeeds when a learner can:
+다음 행동을 할 수 있게 되면 첫 MVP가 학습 목표를 달성한 것으로 본다.
 
-1. Distinguish hole cards from community cards.
-2. Follow Preflop, Flop, Turn, River, and Showdown in order.
-3. Explain Check, Bet, Call, Raise, and Fold in context.
-4. Identify a made five-card hand at a beginner level.
-5. Recognize the four useful starting-hand properties: high cards, pocket pair, suited, and connected.
-6. Compare two starting hands and give a simple reason for the comparison.
-7. Explain why the same hand can have a different play value in early and late position.
-8. Leave a lesson and resume from the last confirmed learning step.
+1. 개인 카드와 공용 카드를 구분할 수 있다.
+2. 프리플랍, 플랍, 턴, 리버, 쇼다운의 순서를 이해한다.
+3. 체크, 베팅, 콜, 레이즈, 폴드의 의미를 상황에 맞게 설명할 수 있다.
+4. 개인 카드와 공용 카드로 만들어지는 최종 5장 패를 초보자 수준에서 판단할 수 있다.
+5. 시작 패의 네 가지 주요 특징인 높은 카드, 포켓 페어, 수딧, 커넥티드를 알아볼 수 있다.
+6. 두 시작 패를 비교하고 어느 쪽이 더 좋은지 간단한 이유를 말할 수 있다.
+7. 같은 카드라도 초반 포지션과 후반 포지션에서 플레이 가치가 달라지는 이유를 설명할 수 있다.
+8. 학습 도중 나갔다가 마지막으로 완료한 단계에서 다시 시작할 수 있다.
 
-## 3. Product Principles
+## 3. 제품 설계 원칙
 
-- The app is an interactive course, not a documentation site.
-- The core loop is prompt, learner decision, immediate feedback, and repetition.
-- Explanations stay short and appear close to the decision they explain.
-- The MVP teaches reasoning before charts, memorized percentages, GTO ranges, or advanced strategy.
-- The interface resembles a calm training tool rather than a casino product.
-- Part 0 is recommended before Part 1, but Part 1 is not hard-locked.
-- Mobile is the primary layout; tablet and desktop layouts must remain natural and fully functional.
+- 문서를 길게 읽는 앱이 아니라 직접 판단하며 배우는 인터랙티브 코스로 만든다.
+- 기본 학습 흐름은 `문제 또는 상황 제시 → 사용자 판단 → 즉시 피드백 → 반복`이다.
+- 설명은 짧게 작성하고, 그 설명이 필요한 판단 바로 옆에서 보여준다.
+- 차트와 확률을 외우기 전에 판단 근거를 이해하게 한다.
+- 정확한 GTO 레인지나 고급 전략은 첫 MVP에서 다루지 않는다.
+- 카지노 서비스보다 차분하고 신뢰할 수 있는 훈련 도구처럼 보이게 한다.
+- Part 0을 먼저 권장하지만 Part 1을 강제로 잠그지는 않는다.
+- 모바일 화면을 우선 설계하되 태블릿과 데스크톱에서도 자연스럽게 작동해야 한다.
 
-## 4. MVP Scope
+## 4. MVP 학습 범위
 
-### 4.1 Part 0 — Understand the Flow of a Hand
+### 4.1 Part 0 — 한 판의 흐름 이해하기
 
-Part 0 teaches the learner to follow what is happening at the table. It contains six lessons.
+Part 0의 목표는 전략을 잘하는 것이 아니라 테이블에서 일어나는 일을 놓치지 않고 따라가는 것이다. 다음 여섯 개 Lesson으로 구성한다.
 
-1. **Goal and cards**
-   - Two private hole cards.
-   - Shared community cards.
-   - The best five-card poker hand wins at Showdown.
-2. **Hand-ranking basics**
-   - Beginner-level ordering from High Card through Royal Flush.
-   - Comparison exercises instead of a long memorization page.
-3. **Stages of a hand**
-   - Preflop, Flop, Turn, River, and Showdown.
-   - An interactive table reveals cards in the correct order.
-4. **Available actions**
-   - Check, Bet, Call, Raise, and Fold.
-   - The learner chooses an action in simple situations and receives an explanation.
-5. **Blinds and action order**
-   - Dealer, Small Blind, and Big Blind.
-   - The difference between Preflop action order and later streets.
-6. **Guided simulated hand**
-   - Guidance is gradually reduced.
-   - The learner identifies the current street and an available action.
+1. **게임의 목표와 카드 구성**
+   - 개인 카드 두 장을 받는다는 점을 배운다.
+   - 테이블에 공개되는 공용 카드를 배운다.
+   - 쇼다운에서는 가장 좋은 5장 조합으로 승부한다는 점을 배운다.
+2. **족보 기초**
+   - 하이 카드부터 로열 플러시까지의 순서를 배운다.
+   - 긴 설명을 외우기보다 두 패를 비교하는 문제를 중심으로 익힌다.
+3. **한 판의 진행 단계**
+   - 프리플랍, 플랍, 턴, 리버, 쇼다운을 배운다.
+   - 버튼을 누르면 테이블의 카드가 실제 순서대로 공개되는 체험을 제공한다.
+4. **플레이어가 할 수 있는 행동**
+   - 체크, 베팅, 콜, 레이즈, 폴드를 배운다.
+   - 간단한 상황에서 가능한 행동을 고르고 바로 설명을 확인한다.
+5. **블라인드와 행동 순서**
+   - 딜러, 스몰 블라인드, 빅 블라인드를 배운다.
+   - 프리플랍과 그 이후 단계에서 행동 순서가 달라진다는 점을 배운다.
+6. **안내가 포함된 모의 한 판**
+   - 진행할수록 안내 문구를 줄인다.
+   - 사용자가 현재 단계와 가능한 행동을 직접 판단한다.
 
-Part 0 is complete when the learner passes its final guided hand. Completion leads to a clear Part 1 call to action.
+마지막 모의 한 판을 통과하면 Part 0을 완료한다. 완료 화면에서는 Part 1로 자연스럽게 이동할 수 있는 버튼을 보여준다.
 
-### 4.2 Part 1 — Evaluate a Starting Hand
+### 4.2 Part 1 — 시작 패의 가치 판단하기
 
-Part 1 teaches the learner to read the two starting cards, identify useful properties, compare hands, and account for position. It contains eight lessons.
+Part 1의 목표는 처음 받은 두 장의 특징을 읽고, 두 패를 비교하고, 포지션까지 반영해 플레이 가치를 판단하는 것이다. 다음 여덟 개 Lesson으로 구성한다.
 
-1. **Read hand notation**
-   - Examples include `AKs`, `AQo`, and `TT`.
-2. **Four useful properties**
-   - High cards, Pocket Pair, Suited, and Connected.
-3. **Identify properties**
-   - The learner selects every applicable property for a displayed hand.
-4. **Compare two hands**
-   - Examples such as `AKs` versus `A8o`.
-   - Feedback explains the meaningful difference.
-5. **Classify approximate strength**
-   - Strong, Good, Situational, or Weak.
-   - The app does not present these labels as universal GTO truth.
-6. **Understand position**
-   - Early, Middle, and Late position.
-   - Later action provides more information.
-7. **Same hand, different position**
-   - Repeated hands demonstrate that context changes play value.
-8. **Combined challenge**
-   - The learner combines card properties and position to make a beginner-level play-or-fold judgment.
+1. **핸드 표기 읽기**
+   - `AKs`, `AQo`, `TT`와 같은 표기를 배운다.
+2. **좋은 시작 패의 네 가지 특징**
+   - 높은 카드, 포켓 페어, 수딧, 커넥티드를 배운다.
+3. **카드의 특징 찾기**
+   - 제시된 카드에 해당하는 특징을 모두 선택한다.
+4. **두 시작 패 비교하기**
+   - `AKs`와 `A8o`처럼 두 패 중 더 좋은 쪽을 고른다.
+   - 선택 직후 어떤 특징 때문에 차이가 생기는지 설명한다.
+5. **대략적인 강도 분류하기**
+   - `강함 / 괜찮음 / 상황에 따라 / 약함`으로 분류한다.
+   - 이 분류를 모든 상황에 통용되는 절대적인 GTO 정답처럼 표현하지 않는다.
+6. **포지션 이해하기**
+   - 초반, 중간, 후반 포지션을 배운다.
+   - 나중에 행동할수록 다른 플레이어의 행동을 더 많이 본다는 점을 배운다.
+7. **같은 핸드, 다른 포지션**
+   - 같은 카드를 반복해서 보여주고 포지션에 따라 플레이 가치가 달라지는 것을 체험한다.
+8. **종합 도전**
+   - 카드의 특징과 포지션을 함께 보고 초보자 수준의 플레이 또는 폴드 판단을 한다.
 
-The MVP does not teach exact opening charts, fixed equity percentages, pot odds, ranges, or postflop strategy.
+첫 MVP에서는 정확한 오픈 차트, 고정 승률, 팟 오즈, 상대 레인지, 플랍 이후 전략을 다루지 않는다.
 
-### 4.3 Completion and Retry Rules
+### 4.3 완료와 재도전 기준
 
-A regular Lesson is complete after the learner reaches its result screen. Its score is recorded for feedback but does not block the next Lesson. Part 0's guided hand and Part 1's combined challenge each require at least 80% correct answers to complete the Part. Failed final challenges show the missed concepts and can be retried without an attempt limit. Retrying a challenge replaces its displayed best result only when the new score is higher.
+- 일반 Lesson은 결과 화면까지 도달하면 완료로 처리한다.
+- 일반 Lesson의 점수는 피드백을 위해 기록하지만 다음 Lesson을 막지는 않는다.
+- Part 0의 모의 한 판과 Part 1의 종합 도전은 정답률 80% 이상일 때 해당 Part를 완료한다.
+- 최종 도전에 실패하면 놓친 개념을 보여주고 횟수 제한 없이 다시 도전할 수 있다.
+- 재도전 결과가 이전 최고 점수보다 높을 때만 최고 점수를 갱신한다.
 
-## 5. Navigation and Screen Flow
+## 5. 화면 이동과 사용자 흐름
 
-### 5.1 Routes
+### 5.1 주소 구조
 
-The application exposes the following conceptual routes:
+앱은 다음과 같은 화면 주소를 사용한다.
 
-- `/` — Home and learning-path overview.
-- `/parts/:partId` — Part introduction, lesson list, and completion state.
-- `/learn/:partId/:lessonId` — Interactive lesson session.
-- `/results/:partId/:lessonId` — Lesson result and next action.
-- `/results/:partId` — Part result and next-part recommendation.
+- `/` — 홈과 전체 학습 경로
+- `/parts/:partId` — Part 소개, Lesson 목록, 완료 상태
+- `/learn/:partId/:lessonId` — 실제 학습 화면
+- `/results/:partId/:lessonId` — Lesson 결과
+- `/results/:partId` — Part 결과와 다음 Part 안내
 
-Unknown Part or Lesson identifiers display a useful not-found state with a route back to Home.
+존재하지 않는 Part나 Lesson 주소로 들어오면 빈 화면을 보여주지 않는다. 잘못된 주소라는 안내와 홈으로 돌아가는 버튼을 제공한다.
 
-### 5.2 Home
+### 5.2 홈 화면
 
-Home displays:
+홈에는 다음 정보를 보여준다.
 
-- A prominent “Continue learning” action when resumable progress exists.
-- Progress for Part 0 and Part 1.
-- Both Part cards at all times.
-- A recommended sequence without hard-locking Part 1.
+- 이어갈 학습이 있으면 눈에 잘 띄는 `계속 학습하기` 버튼
+- Part 0과 Part 1의 진행률
+- 항상 확인할 수 있는 Part 0과 Part 1 카드
+- Part 0을 먼저 추천하되 Part 1을 강제로 막지 않는 안내
 
-### 5.3 Part Introduction
+### 5.3 Part 소개 화면
 
-A Part page displays its learning objective, Lesson list, completion states, and the appropriate primary action:
+Part 소개 화면에는 다음 내용을 보여준다.
 
-- Start when untouched.
-- Continue when in progress.
-- Review or retake when complete.
+- Part의 학습 목표
+- Lesson 목록
+- 각 Lesson의 완료 상태
+- 처음이면 `시작하기`
+- 진행 중이면 `이어하기`
+- 완료했다면 `복습하기` 또는 `다시 풀기`
 
-### 5.4 Learning Session
+### 5.4 학습 화면
 
-A learning session displays the current Part, Lesson, progress, interactive content, feedback, and navigation controls. A submitted answer must show its feedback before the learner advances.
+학습 화면에는 현재 Part, Lesson, 진행률, 학습 콘텐츠, 피드백, 이전·다음 버튼을 보여준다. 문제의 답을 제출한 뒤에는 피드백을 먼저 확인해야 다음 문제로 이동할 수 있다.
 
-The supported MVP step types are deliberately limited to:
+첫 MVP에서 지원하는 학습 단계 유형은 다음 네 가지로 제한한다.
 
-1. Short explanation.
-2. Interactive card or table progression.
-3. Choice-based question.
-4. Result and feedback.
+1. 짧은 개념 설명
+2. 카드 또는 테이블을 직접 진행하는 체험
+3. 선택형 문제
+4. 결과와 피드백
 
-### 5.5 Results
+### 5.5 결과 화면
 
-A Lesson result summarizes the score, concepts learned, important mistakes, retry option, and next Lesson. A Part result summarizes the acquired abilities and offers review or next-Part actions.
+Lesson 결과 화면에는 정답 수, 배운 개념, 중요한 오답 설명, 다시 풀기, 다음 Lesson 버튼을 보여준다. Part 결과 화면에는 이번 Part에서 익힌 능력과 복습 또는 다음 Part 이동 버튼을 보여준다.
 
-## 6. Progress and Resume Behavior
+### 5.6 대표 사용자 흐름
 
-The first React version stores progress in the browser without login.
+처음 방문한 사용자는 다음 순서로 학습한다.
 
-Progress is saved only after a confirmed action:
+```text
+홈
+→ Part 0 소개
+→ Lesson 진행
+→ 중간 이탈
+→ 홈에서 이어하기
+→ Part 0 완료
+→ Part 1 추천
+→ Part 1 학습
+```
 
-- The learner advances from an explanation.
-- The learner submits a quiz answer.
-- A Lesson is completed.
-- A Part is completed.
+이미 기본 규칙을 아는 사용자는 홈에서 Part 1을 바로 선택할 수 있다.
 
-Selecting an answer without submitting it is not persisted.
+## 6. 진도 저장과 이어하기
 
-Saved progress includes:
+첫 React 버전은 로그인 없이 브라우저에 진도를 저장한다.
 
-- Current Part identifier.
-- Current Lesson identifier.
-- Last confirmed step index.
-- Completed Lesson identifiers.
-- Completed Part identifiers.
-- Per-Lesson answered and correct counts.
+다음과 같이 학습 행동이 확정된 시점에만 저장한다.
 
-On return, Home offers a direct continuation action. Entering an in-progress Part resumes its last incomplete Lesson and confirmed step. Entering a completed Part offers review, quiz retry, or movement to the next Part.
+- 설명 화면에서 `다음`을 눌렀을 때
+- 문제의 답을 제출했을 때
+- Lesson을 완료했을 때
+- Part를 완료했을 때
 
-The user can reset one Part or all progress. Reset operations require confirmation.
+답을 선택만 하고 제출하지 않은 상태는 저장하지 않는다.
 
-Browser storage limitations must be made clear: progress belongs to that browser and device, can be removed with browser data, and may not survive private browsing.
+다음 정보를 저장한다.
 
-## 7. Frontend Architecture
+- 현재 Part 식별자
+- 현재 Lesson 식별자
+- 마지막으로 완료한 학습 단계 번호
+- 완료한 Lesson 목록
+- 완료한 Part 목록
+- Lesson별로 답한 문제 수와 정답 수
+- 최종 도전의 최고 점수
 
-### 7.1 Stack
+사용자가 다시 방문하면 홈에서 마지막 학습으로 바로 이동하는 버튼을 보여준다. 진행 중인 Part에 다시 들어오면 마지막으로 끝낸 단계 다음부터 이어간다. 완료한 Part에 다시 들어오면 복습하기, 퀴즈 다시 풀기, 다음 Part 이동 중에서 선택할 수 있다.
 
-- React with TypeScript.
-- Vite for development and production builds.
-- React Router for route handling.
-- React Context plus `useReducer` for the small global learning state.
-- Plain CSS and CSS custom properties for styling and responsive tokens.
-- Vitest and React Testing Library for unit and component tests.
-- Playwright for a minimal end-to-end learning flow.
+사용자는 Part 하나의 진도 또는 전체 진도를 초기화할 수 있다. 실수로 삭제하지 않도록 초기화 전에 확인 창을 보여준다.
 
-Redux, a server-state library, a UI framework, and a content-management system are outside the MVP.
+브라우저 저장 방식의 한계를 화면에서 명확히 안내한다.
 
-### 7.2 Module Boundaries
+- 같은 기기와 브라우저에서만 유지된다.
+- 브라우저 데이터를 지우면 함께 삭제될 수 있다.
+- 시크릿 모드에서는 유지되지 않을 수 있다.
+- 로그인과 서버가 추가되기 전에는 다른 기기와 동기화되지 않는다.
+
+## 7. React 프론트엔드 구조
+
+### 7.1 사용 기술
+
+- React와 TypeScript
+- 개발 환경과 배포용 빌드를 위한 Vite
+- 화면 주소 처리를 위한 React Router
+- 작은 규모의 전체 학습 상태를 관리하기 위한 React Context와 `useReducer`
+- 스타일을 위한 일반 CSS와 CSS 변수
+- 단위·컴포넌트 테스트를 위한 Vitest와 React Testing Library
+- 핵심 사용자 흐름을 실제 브라우저에서 검증하기 위한 Playwright
+
+현재 범위에는 Redux, 서버 상태 관리 라이브러리, 대형 UI 프레임워크, 콘텐츠 관리 시스템을 사용하지 않는다.
+
+### 7.2 폴더별 책임
 
 ```text
 src/
-├── app/                 Application entry point, routes, and providers
-├── pages/               Home, Part, learning, and result pages
-├── features/learning/   Step progression, answer evaluation, result calculation
-├── features/progress/   Progress state and persistence
-├── components/          Cards, table, progress, feedback, and common UI
-├── content/             Typed Part 0 and Part 1 course data
-├── types/               Course, Lesson, Step, answer, and progress contracts
-└── styles/              Design tokens, global rules, and responsive layout
+├── app/                 앱 시작점, 화면 주소, 공통 Provider
+├── pages/               홈, Part 소개, 학습, 결과 화면
+├── features/learning/   단계 이동, 정답 판정, 결과 계산
+├── features/progress/   진도 상태와 저장 기능
+├── components/          카드, 테이블, 진행률, 피드백 등 공통 UI
+├── content/             Part 0과 Part 1의 학습 내용
+├── types/               Course, Lesson, Step, 정답, 진도 타입
+└── styles/              색상·간격 기준, 공통 스타일, 반응형 규칙
 ```
 
-Learning content contains prompts, cards, choices, correct answers, and explanations. It does not contain navigation or persistence behavior. The learning feature interprets typed content and produces UI state. Pages compose the feature and reusable components.
+학습 콘텐츠에는 질문, 카드, 선택지, 정답, 해설을 저장한다. 콘텐츠 파일은 화면 이동이나 브라우저 저장을 직접 처리하지 않는다. 학습 기능은 타입이 정해진 콘텐츠를 해석하고 화면에 필요한 상태를 만든다. 각 화면은 이 학습 기능과 공통 컴포넌트를 조합한다.
 
-### 7.3 Content Model
+### 7.3 학습 콘텐츠 구조
 
-The content model uses a discriminated union for supported step types so TypeScript can require the correct data for each renderer. Course, Part, and Lesson identifiers are stable strings because they are persisted and will later be exchanged with the backend.
+각 학습 단계는 `type` 값으로 종류를 구분한다. TypeScript는 단계 종류에 따라 필요한 데이터가 모두 들어 있는지 검사한다. 예를 들어 선택형 문제에는 선택지와 정답이 반드시 있어야 하고, 설명 단계에는 본문이 있어야 한다.
 
-The model must be narrow enough to remain understandable. A new abstraction is added only when at least two real Part 0 or Part 1 cases need it.
+Course, Part, Lesson의 식별자는 문자열로 고정한다. 이 값은 브라우저에 저장되고 나중에는 Spring Boot 서버와 주고받는 값이 되므로 임의로 자주 변경하지 않는다.
 
-### 7.4 Progress Repository
+현재 실제로 필요한 사례가 두 개 이상 생길 때만 새로운 공통 구조를 추가한다. 미래 가능성만을 위해 복잡한 범용 구조를 미리 만들지 않는다.
 
-React components do not call `localStorage` directly. They depend on this repository boundary:
+### 7.4 진도 저장소 경계
+
+React 컴포넌트가 브라우저의 `localStorage`를 직접 호출하지 않게 한다. 화면은 다음 인터페이스에만 의존한다.
 
 ```ts
 interface ProgressRepository {
@@ -216,124 +249,137 @@ interface ProgressRepository {
 }
 ```
 
-The MVP provides `LocalProgressRepository`. A later Spring Boot phase can provide `ApiProgressRepository` without changing the learning pages.
+첫 MVP는 `LocalProgressRepository`를 사용한다. 나중에 Spring Boot를 연결할 때 `ApiProgressRepository`를 추가한다. 이때 학습 화면은 바꾸지 않고 저장소 구현만 교체하는 것을 목표로 한다.
 
-## 8. Data Flow
+## 8. 데이터가 흐르는 과정
 
-1. The router resolves a Part and Lesson identifier.
-2. The content catalog returns the typed Lesson.
-3. Saved progress identifies the last confirmed step.
-4. The learning session renders the current step through the matching renderer.
-5. The learner advances or submits an answer.
-6. A pure learning function evaluates the action and produces feedback and updated progress.
-7. The reducer updates the visible state.
-8. The progress repository persists the confirmed state.
-9. Completion routes the learner to the relevant result page.
+1. 화면 주소에서 Part와 Lesson 식별자를 읽는다.
+2. 학습 콘텐츠 목록에서 해당 Lesson을 찾는다.
+3. 저장된 진도에서 마지막으로 완료한 단계를 확인한다.
+4. 현재 단계의 종류에 맞는 화면을 보여준다.
+5. 사용자가 다음으로 이동하거나 답을 제출한다.
+6. 정답 판정 함수가 피드백과 변경된 진도를 만든다.
+7. `useReducer`가 화면에 보이는 상태를 갱신한다.
+8. 진도 저장소가 확정된 상태를 저장한다.
+9. Lesson이나 Part가 끝나면 해당 결과 화면으로 이동한다.
 
-## 9. Error Handling
+## 9. 오류 처리
 
-- Missing stored progress starts a new learning state.
-- Invalid or incompatible stored JSON is discarded safely and replaced with a clean state; the learner receives a short explanation.
-- A storage write failure does not stop the active Lesson; the learner is warned that the latest progress may not persist.
-- Unknown Part or Lesson identifiers display a recoverable not-found state.
-- An unsupported step type produces a visible content error instead of a blank screen.
-- Content validation runs in tests so missing answers, duplicate identifiers, and invalid routes fail before deployment.
+- 저장된 진도가 없으면 처음 학습하는 상태로 시작한다.
+- 저장된 JSON 데이터가 손상되었거나 현재 버전과 맞지 않으면 안전하게 초기화하고 짧은 안내를 보여준다.
+- 브라우저 저장에 실패하더라도 현재 Lesson은 계속 진행할 수 있게 한다. 대신 최신 진도가 저장되지 않을 수 있음을 알려준다.
+- 존재하지 않는 Part나 Lesson 주소는 사용자가 홈으로 돌아갈 수 있는 오류 화면으로 처리한다.
+- 지원하지 않는 학습 단계가 들어오면 빈 화면 대신 콘텐츠 오류를 보여준다.
+- 테스트에서 빠진 정답, 중복된 식별자, 잘못된 화면 주소 연결을 확인해 배포 전에 실패하도록 한다.
 
-## 10. Responsive and Visual Design
+## 10. 반응형 화면과 시각 디자인
 
-The visual direction is “calm poker table plus modern learning app.”
+시각 방향은 **차분한 포커 테이블과 현대적인 학습 앱의 결합**이다.
 
-- Deep green is the identifying color.
-- Cards and instructional content use bright, high-contrast surfaces.
-- Casino-style gold, neon, chip explosions, and excessive decoration are excluded.
-- Correct and incorrect states use icons and text in addition to color.
-- Card ranks and suits remain legible on small screens.
-- Motion is limited to card reveals, feedback transitions, and clear progress changes.
-- Reduced-motion preferences are respected.
+- 짙은 녹색을 앱의 대표 색상으로 사용한다.
+- 카드와 학습 내용은 밝고 대비가 분명한 면에 표시한다.
+- 금색, 네온, 칩 폭발 같은 카지노식 장식은 사용하지 않는다.
+- 정답과 오답은 색상만으로 구분하지 않고 아이콘과 설명을 함께 사용한다.
+- 작은 모바일 화면에서도 카드 숫자와 문양을 쉽게 읽을 수 있어야 한다.
+- 움직임은 카드 공개, 피드백 전환, 진행률 변화 정도로 제한한다.
+- 사용자가 기기에서 애니메이션 줄이기를 설정했다면 이를 따른다.
 
-Mobile layouts use a single primary column and large reachable actions. Comparison content can become a two-column layout when space permits. Desktop content has a readable maximum width rather than stretching across the viewport.
+모바일에서는 하나의 주요 세로 열과 손가락으로 누르기 쉬운 큰 버튼을 사용한다. 화면이 넓어지면 카드 비교 문제를 두 열로 배치할 수 있다. 데스크톱에서는 콘텐츠가 화면 전체로 지나치게 늘어나지 않도록 읽기 편한 최대 너비를 설정한다.
 
-## 11. Accessibility
+## 11. 접근성
 
-- Every action is operable by keyboard.
-- Focus states are visible.
-- Playing cards have meaningful accessible labels such as “Ace of spades.”
-- Suit and feedback meaning never depends on color alone.
-- Feedback is announced appropriately after answer submission.
-- Buttons and interactive targets meet reasonable mobile touch sizes.
-- Heading levels and landmarks describe the learning hierarchy.
+- 모든 기능을 키보드로 사용할 수 있어야 한다.
+- 현재 선택된 요소의 포커스 테두리가 분명하게 보여야 한다.
+- 카드에는 `스페이드 에이스`처럼 화면 읽기 프로그램이 이해할 수 있는 이름을 제공한다.
+- 문양, 정답, 오답을 색상만으로 구분하지 않는다.
+- 정답을 제출한 뒤 나타나는 피드백을 화면 읽기 프로그램도 알 수 있게 한다.
+- 모바일 버튼과 선택 영역은 손가락으로 누르기 충분한 크기로 만든다.
+- 제목 단계와 주요 영역을 의미에 맞는 HTML 구조로 작성한다.
 
-## 12. Testing Strategy
+## 12. 테스트 계획
 
-### Unit tests
+### 12.1 단위 테스트
 
-- Answer evaluation for every supported question form.
-- Step advancement and completion.
-- Progress percentage calculation.
-- Resume target calculation.
-- Part and all-progress reset.
+- 지원하는 모든 문제 유형의 정답 판정
+- 다음 단계 이동과 Lesson 완료
+- 진행률 계산
+- 이어서 시작할 위치 계산
+- Part별 초기화와 전체 초기화
+- 최종 도전 80% 통과 기준과 최고 점수 갱신
 
-### Component tests
+### 12.2 컴포넌트 테스트
 
-- Card rendering and accessible labels.
-- Answer selection, submission, and feedback.
-- Feedback-before-advance behavior.
-- Home continuation action.
-- Part start, continue, and review actions.
+- 카드 표시와 접근성 이름
+- 답 선택, 제출, 피드백 표시
+- 피드백을 보기 전에는 다음 문제로 넘어갈 수 없는 동작
+- 홈의 계속 학습하기 버튼
+- Part의 시작하기, 이어하기, 복습하기 버튼
 
-### Repository tests
+### 12.3 저장소 테스트
 
-- Save and load valid progress.
-- Start cleanly when storage is empty.
-- Recover from malformed or incompatible stored data.
-- Surface write failure without stopping the Lesson.
+- 정상적인 진도 저장과 불러오기
+- 저장된 데이터가 없을 때 새 진도로 시작
+- 손상됐거나 버전이 맞지 않는 데이터 복구
+- 저장 실패를 알리면서 현재 Lesson은 계속 진행
 
-### End-to-end test
+### 12.4 전체 흐름 테스트
 
-One core Playwright flow covers starting Part 0, completing confirmed steps, leaving, resuming, completing the Part, and following the Part 1 recommendation. Representative mobile and desktop viewports are included.
+Playwright로 다음 핵심 흐름 하나를 실제 브라우저에서 검증한다.
 
-## 13. Code Understanding Deliverable
+```text
+Part 0 시작
+→ 일부 단계 완료
+→ 화면 이탈
+→ 마지막 단계에서 재개
+→ Part 0 완료
+→ Part 1 추천 버튼으로 이동
+```
 
-`docs/code-walkthrough.md` is part of the MVP, not an optional afterthought. It is updated after each implementation milestone and explains:
+대표적인 모바일 화면 크기와 데스크톱 화면 크기에서 모두 확인한다.
 
-- The user-facing purpose of the milestone.
-- The responsibility of each relevant file.
-- Inputs, outputs, and data flow.
-- Important state and functions.
-- The reason for material technical choices.
-- What the tests protect.
-- Where a future change would be made.
+## 13. 코드 이해를 위한 문서
 
-After each milestone, implementation pauses for a user-facing walkthrough before the next milestone begins. The goal is that the project owner can read, explain, and safely navigate the code even when the agent performed the mechanical implementation.
+`docs/code-walkthrough.md`는 선택 사항이 아니라 MVP 결과물에 포함한다. 각 구현 단계가 끝날 때마다 다음 내용을 추가한다.
 
-## 14. Delivery Sequence
+- 이번 단계가 사용자에게 제공하는 기능
+- 관련 파일마다 맡고 있는 역할
+- 입력값, 출력값, 데이터가 이동하는 과정
+- 중요한 상태와 함수가 동작하는 방식
+- 주요 기술 선택을 한 이유
+- 테스트가 막아주는 문제
+- 나중에 기능을 변경할 때 확인할 위치
 
-1. Establish the React project, design tokens, routes, and test foundations.
-2. Define typed course content and build reusable card and learning primitives.
-3. Implement and verify Part 0.
-4. Explain Part 0 code and update the walkthrough.
-5. Implement and verify Part 1.
-6. Explain Part 1 code and update the walkthrough.
-7. Connect the full Home, resume, results, and Part transition flow.
-8. Verify responsive behavior, accessibility, tests, and production build.
-9. Finalize portfolio-facing README and code walkthrough.
+각 구현 단계가 끝나면 바로 다음 단계로 넘어가지 않는다. 먼저 사용자에게 코드 흐름을 설명하고 질문을 받은 뒤 다음 구현을 진행한다. 사용자가 직접 모든 코드를 작성하지 않더라도 프로젝트 구조를 읽고 설명하며 필요한 위치를 찾을 수 있게 하는 것이 목표다.
 
-Spring Boot planning and implementation begin only after separate approval of the completed React MVP.
+## 14. 구현 순서
 
-## 15. Out of Scope
+1. React 프로젝트, 디자인 기준, 화면 주소, 테스트 기반을 만든다.
+2. 학습 콘텐츠 타입과 카드·학습 공통 요소를 만든다.
+3. Part 0을 구현하고 테스트한다.
+4. Part 0 코드를 설명하고 코드 해설 문서를 갱신한다.
+5. Part 1을 구현하고 테스트한다.
+6. Part 1 코드를 설명하고 코드 해설 문서를 갱신한다.
+7. 홈, 이어하기, 결과, Part 전환을 하나의 흐름으로 연결한다.
+8. 반응형 화면, 접근성, 전체 테스트, 배포용 빌드를 검증한다.
+9. 포트폴리오용 README와 코드 해설 문서를 완성한다.
 
-- Login, accounts, and cross-device progress.
-- Spring Boot, database, and deployment infrastructure.
-- Multiplayer poker gameplay.
-- Real-money or gambling features.
-- Exact GTO opening charts.
-- Equity calculation, ranges, pot odds, EV, bluffing, or postflop strategy.
-- Administrative course editor.
-- Localization.
+Spring Boot의 계획과 구현은 React MVP가 완성된 뒤 별도의 승인을 받고 시작한다.
 
-## 16. Material Tradeoffs
+## 15. 첫 MVP에서 제외하는 범위
 
-- Local browser persistence is simple and supports resume behavior, but it is device-specific and temporary compared with an authenticated backend.
-- A small content-driven engine creates more initial modeling work than separate hard-coded pages, but avoids repeated lesson code and provides a clean backend migration boundary.
-- Plain CSS keeps the implementation transparent and dependency-light, but requires the project to own its responsive and accessibility details.
-- Pausing for code walkthroughs slows delivery but directly supports the portfolio goal of genuine code comprehension.
+- 로그인과 회원 계정
+- 여러 기기의 진도 동기화
+- Spring Boot, 데이터베이스, 배포 서버
+- 실제 사람들과 플레이하는 멀티플레이 게임
+- 현금 또는 도박 기능
+- 정확한 GTO 오픈 차트
+- 승률 계산, 상대 레인지, 팟 오즈, 기대값, 블러프, 플랍 이후 전략
+- 관리자가 강의를 작성하는 콘텐츠 편집기
+- 다국어 지원
+
+## 16. 주요 선택의 장단점
+
+- 브라우저 진도 저장은 단순하고 이어하기를 제공하기 좋지만 로그인 기반 서버 저장과 달리 한 기기와 브라우저에만 남는다.
+- 작은 콘텐츠 기반 학습 엔진은 Lesson마다 화면을 따로 만드는 것보다 초기 설계가 조금 더 필요하다. 대신 반복 코드를 줄이고 Spring Boot 연결 경계를 분명하게 만들 수 있다.
+- 일반 CSS는 외부 의존성이 적고 사용자가 코드를 읽기 쉽다. 대신 반응형 화면과 접근성 세부 사항을 프로젝트에서 직접 관리해야 한다.
+- 구현 단계마다 코드 설명을 위해 멈추면 개발 속도는 느려지지만, 사용자가 프로젝트를 실제로 이해해야 한다는 포트폴리오 목표에 직접 도움이 된다.
