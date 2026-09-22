@@ -116,3 +116,9 @@
 사용자가 선택하면 `sessionReducer`가 선택 ID를 상태에 저장한다. `정답 확인`을 누르면 `evaluateAnswer`가 선택 집합과 정답 집합을 비교하고, reducer가 정답 수와 제출한 Step ID를 기록한다. 이미 제출한 ID는 다시 집계하지 않는다. 화면은 판정 결과를 `FeedbackPanel`에 보여준 뒤에만 다음 단계 버튼을 제공한다.
 
 정답 판정은 React 컴포넌트 밖의 순수 함수라서 화면 없이도 테스트할 수 있다. `calculateResult.ts`는 5문제 중 4문제처럼 정확히 80%인 경계값을 통과시킨다. 새로운 문제 UI는 `LearningStepRenderer.tsx`, 세션 이동 규칙은 `LearningSession.tsx`와 `sessionReducer.ts`에서 변경한다.
+
+## 5. 진도 저장과 이어하기
+
+`progressReducer.ts`는 메모리 안의 진도를 변경하고, `LocalProgressRepository.ts`는 그 결과를 `localStorage`에 저장한다. React 화면은 `ProgressProvider`만 사용하므로 저장 위치를 알 필요가 없다. 나중에 Spring Boot를 붙일 때는 `ProgressRepository`를 구현한 API 저장소로 교체한다.
+
+저장된 JSON은 외부 입력이므로 TypeScript 타입 단언만 믿지 않고 버전과 필수 배열·객체를 다시 검사한다. 손상됐으면 새 진도로 복구하고 `recovered`를 통해 안내한다. `recent`는 홈의 가장 최근 학습, `resumeByPart`는 Part별 이어하기 위치를 담당하므로 Part 1을 둘러봐도 Part 0 위치가 사라지지 않는다.
