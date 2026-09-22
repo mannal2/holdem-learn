@@ -1,16 +1,15 @@
-import { Link, useParams } from 'react-router-dom'
-import { part0, part0Lessons } from '../content/part0'
-import { part1, part1Lessons } from '../content/part1'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { getLesson, getPart } from '../content/catalog'
 import { hasPassed } from '../features/learning/calculateResult'
 import { LearningSession } from '../features/learning/LearningSession'
 import { useProgress } from '../features/progress/ProgressProvider'
 
 export function LearningPage() {
   const { partId, lessonId } = useParams()
+  const navigate = useNavigate()
   const { progress, status, warning, confirmStep, completeLesson } = useProgress()
-  const course = partId === part0.id ? { part: part0, lessons: part0Lessons } : partId === part1.id ? { part: part1, lessons: part1Lessons } : undefined
-  const part = course?.part
-  const lesson = course && lessonId ? course.lessons[lessonId] : undefined
+  const part = partId ? getPart(partId) : undefined
+  const lesson = lessonId ? getLesson(lessonId) : undefined
 
   if (status === 'loading') return <main className="page-shell"><p>진도를 불러오는 중이에요…</p></main>
   if (!part || !lesson || !part.lessonIds.includes(lesson.id)) {
@@ -26,12 +25,14 @@ export function LearningPage() {
       {warning && <p className="save-warning" role="status">{warning}</p>}
       <header className="lesson-header"><p className="eyebrow">Part {part.order}</p><h1>{lesson.title}</h1><p>{lesson.objective}</p></header>
       <LearningSession
+        key={lesson.id}
         lesson={lesson}
         initialStepIndex={initialStepIndex}
         onConfirmedProgress={({ stepIndex }) => void confirmStep({ partId: part.id, lessonId: lesson.id, stepIndex })}
-        onComplete={({ answered, correct }) => {
+        onComplete={async ({ answered, correct }) => {
           const passedPart = Boolean(lesson.passingPercentage) && hasPassed(correct, answered, lesson.passingPercentage ?? 100)
-          void completeLesson({ lessonId: lesson.id, partId: part.id, correct, answered, passedPart })
+          await completeLesson({ lessonId: lesson.id, partId: part.id, correct, answered, passedPart })
+          navigate(`/results/${part.id}/${lesson.id}`)
         }}
       />
     </main>

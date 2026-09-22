@@ -13,4 +13,5 @@ export class MemoryProgressRepository implements ProgressRepository {
   async save(progress: LearningProgress) { this.progress = structuredClone(progress) }
   async reset() { this.progress = createEmptyProgress() }
 }
-export function renderAppAt(path: string, progress = createEmptyProgress()) { const repository = new MemoryProgressRepository(progress); const view = render(<ProgressProvider repository={repository}><RouterProvider router={createAppRouter([path])} /></ProgressProvider>); return { ...view, repository } }
+export function renderAppAt(path: string, progress = createEmptyProgress()) { const repository = new MemoryProgressRepository(progress); const router = createAppRouter([path]); const view = render(<ProgressProvider repository={repository}><RouterProvider router={router} /></ProgressProvider>); return { ...view, repository, router } }
+export function renderAppWithProgress(progress: LearningProgress, path: string) { return renderAppAt(path, progress).repository }

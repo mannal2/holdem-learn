@@ -280,6 +280,27 @@ p {
 .position-diagram__group--middle { top: 0; right: 2%; }
 .position-diagram__group--late { right: 5%; bottom: 0; }
 
+.storage-note {
+  margin-top: var(--space-8);
+  padding: var(--space-6);
+  border-radius: var(--radius-card);
+  background: rgb(255 255 255 / 10%);
+  color: white;
+}
+
+.storage-note p { color: rgb(255 255 255 / 75%); }
+.text-link { font-weight: 800; }
+.lesson-list { display: grid; gap: var(--space-3); padding: 0; list-style: none; }
+.lesson-list li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4); border-radius: 0.75rem; background: var(--color-surface); }
+.lesson-list li div { display: grid; gap: var(--space-1); }
+.lesson-list li span { color: var(--color-text-muted); font-size: 0.85rem; }
+.dialog-backdrop { position: fixed; z-index: 10; inset: 0; display: grid; place-items: center; padding: var(--space-4); background: rgb(0 0 0 / 65%); }
+.confirm-dialog { width: min(100%, 30rem); padding: var(--space-6); border-radius: var(--radius-card); background: var(--color-surface); box-shadow: var(--shadow-card); }
+.dialog-actions, .result-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+.dialog-actions button { min-height: 2.75rem; padding-inline: var(--space-4); border-radius: 0.75rem; }
+.danger-button { border: 0; background: var(--color-danger); color: white; }
+.result-panel h1 { max-width: 20ch; font-size: clamp(1.8rem, 7vw, 3rem); }
+
 @media (min-width: 48rem) {
   .part-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
