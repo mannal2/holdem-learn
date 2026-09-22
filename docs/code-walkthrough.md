@@ -110,3 +110,9 @@
 - CSS를 컴포넌트 동작과 분리해 카드 데이터와 공개 규칙을 읽을 때 시각 세부사항이 섞이지 않게 했다.
 
 새 카드 표현은 `PlayingCard.tsx`, 테이블 공개 규칙은 `PokerTable.tsx`, 전체 색상은 `styles/tokens.css`에서 변경한다.
+
+## 4. 정답 판정과 학습 세션
+
+사용자가 선택하면 `sessionReducer`가 선택 ID를 상태에 저장한다. `정답 확인`을 누르면 `evaluateAnswer`가 선택 집합과 정답 집합을 비교하고, reducer가 정답 수와 제출한 Step ID를 기록한다. 이미 제출한 ID는 다시 집계하지 않는다. 화면은 판정 결과를 `FeedbackPanel`에 보여준 뒤에만 다음 단계 버튼을 제공한다.
+
+정답 판정은 React 컴포넌트 밖의 순수 함수라서 화면 없이도 테스트할 수 있다. `calculateResult.ts`는 5문제 중 4문제처럼 정확히 80%인 경계값을 통과시킨다. 새로운 문제 UI는 `LearningStepRenderer.tsx`, 세션 이동 규칙은 `LearningSession.tsx`와 `sessionReducer.ts`에서 변경한다.
