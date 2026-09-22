@@ -100,3 +100,13 @@
 - 새로운 카드 데이터 추가: `frontend/src/types/cards.ts`
 - 새로운 학습 Step 종류 추가: `frontend/src/types/course.ts`
 - 콘텐츠 연결 규칙 추가: `frontend/src/content/validateCourse.ts`
+
+## 3. 카드와 테이블 공통 UI
+
+- `PlayingCard.tsx`는 `{ rank, suit }` 데이터를 문양, 색, `스페이드 에이스` 같은 접근성 이름으로 바꾼다. `hidden`이면 실제 카드 값을 DOM에 노출하지 않고 카드 뒷면만 표시한다.
+- `PokerTable.tsx`는 현재 단계에 따라 공개할 공용 카드 수를 `0 → 3 → 4 → 5`로 계산한다. 카드 자체를 그리는 일은 `PlayingCard`에 맡긴다.
+- `ProgressBar.tsx`는 화면 표시뿐 아니라 현재값·최댓값을 보조 기술에 전달한다.
+- `FeedbackPanel.tsx`는 색뿐 아니라 아이콘, 제목, 설명으로 정답 여부를 전달한다.
+- CSS를 컴포넌트 동작과 분리해 카드 데이터와 공개 규칙을 읽을 때 시각 세부사항이 섞이지 않게 했다.
+
+새 카드 표현은 `PlayingCard.tsx`, 테이블 공개 규칙은 `PokerTable.tsx`, 전체 색상은 `styles/tokens.css`에서 변경한다.

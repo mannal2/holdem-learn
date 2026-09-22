@@ -1,0 +1,10 @@
+.poker-table {
+  display: grid;
+  gap: 2rem;
+  padding: clamp(1rem, 5vw, 2.5rem);
+  border: 0.35rem solid #6f4930;
+  border-radius: 45% / 18%;
+  background: var(--color-felt-800);
+}
+.poker-table__board,
+.poker-table__hand { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; }

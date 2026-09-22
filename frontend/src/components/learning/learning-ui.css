@@ -1,0 +1,7 @@
+.progress__meta { display: flex; justify-content: space-between; margin-bottom: .5rem; }
+.progress__track { height: .55rem; overflow: hidden; border-radius: 999px; background: var(--color-surface-muted); }
+.progress__track span { display: block; height: 100%; border-radius: inherit; background: var(--color-felt-600); }
+.feedback { padding: 1rem; border: 2px solid; border-radius: .8rem; }
+.feedback p { margin: .5rem 0 0; }
+.feedback--correct { border-color: var(--color-success); background: #edf8f3; }
+.feedback--incorrect { border-color: var(--color-danger); background: #fff0f0; }
