@@ -130,3 +130,11 @@
 주소 `/learn/part-0/goal-and-cards`를 열면 `router.tsx`가 `LearningPage`를 선택한다. 이 페이지는 주소의 ID로 Lesson 데이터를 찾고, `ProgressProvider`에서 해당 Part의 저장된 `stepIndex`를 읽어 `LearningSession`에 전달한다. 사용자가 정답을 확인하거나 다음으로 이동한 확정 시점에는 `confirmStep`이 호출되어 브라우저 저장소에 이어할 위치가 기록된다.
 
 콘텐츠 문구와 선택지를 바꾸려면 `frontend/src/content/part0.ts`만 수정한다. 새 문제는 해당 Lesson의 `steps` 배열에 고유한 `id`를 가진 `single-choice` 또는 `multi-choice` 객체로 추가한다. 정답 ID는 반드시 `options` 안의 ID와 같아야 하며, `part0.test.ts`와 콘텐츠 검증기가 잘못된 연결을 찾아준다.
+
+## 7. Part 1 카드 특징과 포지션 판단
+
+복수 특징 문제는 `multi-choice` Step의 `correctOptionIds`에 정답을 모두 적는다. 학습 엔진은 사용자가 고른 ID와 정답 ID를 정렬해 같은 집합인지 비교하므로 `A♠ K♠`에서 높은 카드·수딧·커넥티드를 모두 골라야 정답이다. 배열의 작성 순서는 판정에 영향을 주지 않는다.
+
+포지션은 일반 포커 테이블 공개와 의미가 달라 `position` Step을 별도로 두었다. `LearningStepRenderer`가 이 타입을 만나면 `PositionDiagram`을 표시하며, 현재 그룹은 색뿐 아니라 `aria-current` 속성으로도 전달한다.
+
+`J♠ 9♥`는 카드가 바뀌지 않은 채 초반과 후반에서 반복된다. 초반에는 뒤에 결정할 사람이 많아 폴드하지만, 모두 폴드한 후반에서는 입문 범위상 오픈 레이즈할 수 있다는 차이를 한 변수씩 비교하기 위해서다. 여기서 “플레이 가능”은 항상 이긴다는 뜻이 아니라 주어진 조건에서 오픈 레이즈할 가치가 있다는 뜻이다. 강도 분류 역시 절대 차트가 아니며 포지션·상대·스택·앞선 액션이 바뀌면 결정도 달라진다.

@@ -47,11 +47,20 @@ export interface SummaryStep extends BaseStep {
   bullets: string[]
 }
 
+export type PositionGroup = 'early' | 'middle' | 'late'
+
+export interface PositionStep extends BaseStep {
+  type: 'position'
+  activeGroup: PositionGroup
+  body: string
+}
+
 export type LearningStep =
   | ExplanationStep
   | TableRevealStep
   | SingleChoiceStep
   | MultiChoiceStep
+  | PositionStep
   | SummaryStep
 
 export interface LessonDefinition {

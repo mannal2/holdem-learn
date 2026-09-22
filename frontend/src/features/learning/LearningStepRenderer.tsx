@@ -1,11 +1,13 @@
 import type { LearningStep, MultiChoiceStep, SingleChoiceStep } from '../../types/course'
 import { PokerTable } from '../../components/table/PokerTable'
+import { PositionDiagram } from '../../components/table/PositionDiagram'
 
 interface Props { step: LearningStep; selectedOptionIds: string[]; feedbackVisible: boolean; onSelect: (id: string, multiple: boolean) => void }
 export function LearningStepRenderer({ step, selectedOptionIds, feedbackVisible, onSelect }: Props) {
   if (step.type === 'explanation') return <section><h2>{step.title}</h2><p>{step.body}</p></section>
   if (step.type === 'summary') return <section><h2>{step.title}</h2><p>{step.body}</p><ul>{step.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul></section>
   if (step.type === 'table-reveal') return <section><h2>{step.title}</h2><p>{step.body}</p><PokerTable stage={step.stage} holeCards={step.holeCards} communityCards={step.communityCards} /></section>
+  if (step.type === 'position') return <section><h2>{step.title}</h2><p>{step.body}</p><PositionDiagram activeGroup={step.activeGroup} /></section>
   return <ChoiceStep step={step} selectedOptionIds={selectedOptionIds} feedbackVisible={feedbackVisible} onSelect={onSelect} />
 }
 
