@@ -25,3 +25,22 @@ test('Part 1에 직접 접근해 카드 특징 문제의 해설을 확인한다'
   await page.getByRole('button', { name: '정답 확인' }).click()
   await expect(page.getByText(/A와 K는 높은 카드이면서/)).toBeVisible()
 })
+
+test('도전 중 새로고침 뒤 전체 점수를 유지하고 재도전한다', async ({ page }) => {
+  await page.goto('/learn/part-0/guided-hand')
+  const wrongAnswers = ['플랍', '1장', '콜', '레이즈']
+  for (const answer of wrongAnswers) {
+    await page.getByRole(answer === '콜' ? 'checkbox' : 'radio', { name: answer, exact: true }).check()
+    await page.getByRole('button', { name: '정답 확인' }).click()
+    await page.getByRole('button', { name: '다음' }).click()
+  }
+  await page.reload()
+  await page.getByRole('radio', { name: '리버' }).check()
+  await page.getByRole('button', { name: '정답 확인' }).click()
+  await page.reload()
+  await expect(page.getByRole('status')).toContainText('정답이에요')
+  await page.getByRole('button', { name: '완료' }).click()
+  await expect(page.getByText('1/5 정답 · 20%')).toBeVisible()
+  await page.getByRole('link', { name: '종합 도전 다시 풀기' }).click()
+  await expect(page.getByText('개인 카드만 받고 공용 카드가 없다면 현재 단계는?')).toBeVisible()
+})

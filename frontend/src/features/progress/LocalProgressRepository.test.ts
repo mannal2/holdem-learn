@@ -18,3 +18,11 @@ it('지원하지 않는 진도 버전은 새 진도로 복구한다', async () =
   const storage = createMemoryStorage(); storage.setItem('holdem-learning-progress', JSON.stringify({ version: 99 }))
   expect((await new LocalProgressRepository(storage).load()).recovered).toBe(true)
 })
+it('null 객체와 범위를 벗어난 재개 위치는 새 진도로 복구한다', async () => {
+  const storage = createMemoryStorage(); storage.setItem('holdem-learning-progress', JSON.stringify({ ...progressFixture, resumeByPart: null }))
+  await expect(new LocalProgressRepository(storage).load()).resolves.toEqual({ progress: createEmptyProgress(), recovered: true })
+})
+it('브라우저 저장소 읽기가 거부되어도 새 진도로 복구한다', async () => {
+  const storage = createMemoryStorage(); storage.getItem = () => { throw new DOMException('blocked', 'SecurityError') }
+  await expect(new LocalProgressRepository(storage).load()).resolves.toEqual({ progress: createEmptyProgress(), recovered: true })
+})

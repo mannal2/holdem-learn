@@ -24,7 +24,7 @@ export const progressWithCompletedPart0: LearningProgress = {
 
 export const progressWithFailedPart1Challenge: LearningProgress = {
   ...structuredClone(progressFixture),
-  lessonResults: { 'starting-hand-challenge': { answered: 5, correct: 3, bestPercentage: 60, attempts: 1 } },
+  lessonResults: { 'starting-hand-challenge': { answered: 5, correct: 3, bestPercentage: 60, attempts: 1, missedStepIds: ['p1-challenge-j9-early'] } },
 }
 
 export const progressInBothParts: LearningProgress = {

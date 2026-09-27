@@ -6,7 +6,7 @@ export interface ProgressContextValue {
   status: 'loading' | 'ready'
   warning: string | null
   confirmStep(point: ResumePoint): Promise<void>
-  completeLesson(input: { lessonId: string; partId: string; correct: number; answered: number; passedPart: boolean }): Promise<void>
+  completeLesson(input: { lessonId: string; partId: string; correct: number; answered: number; missedStepIds: string[]; passedPart: boolean }): Promise<void>
   resetProgress(partId?: string): Promise<void>
 }
 

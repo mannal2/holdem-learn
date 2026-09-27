@@ -65,9 +65,9 @@ npx playwright install chromium
 2026-09-27 최종 검증 결과:
 
 - `npm run lint`: 경고와 오류 없이 통과
-- `npm test`: 19개 테스트 파일, 42개 테스트 통과
+- `npm test`: 20개 테스트 파일, 50개 테스트 통과
 - `npm run build`: TypeScript 검사와 Vite 프로덕션 빌드 통과
-- `npm run test:e2e`: 모바일 Chromium 2개, 데스크톱 Chromium 2개 시나리오 통과
+- `npm run test:e2e`: 모바일 Chromium 3개, 데스크톱 Chromium 3개 시나리오 통과
 
 ## 주요 설계 결정과 장단점
 

@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { getLesson, getPart } from '../content/catalog'
 import { hasPassed } from '../features/learning/calculateResult'
 import { LearningSession } from '../features/learning/LearningSession'
@@ -7,7 +7,8 @@ import { useProgress } from '../features/progress/progressContext'
 export function LearningPage() {
   const { partId, lessonId } = useParams()
   const navigate = useNavigate()
-  const { progress, status, warning, confirmStep, completeLesson } = useProgress()
+  const [searchParams] = useSearchParams()
+  const { progress, status, confirmStep, completeLesson } = useProgress()
   const part = partId ? getPart(partId) : undefined
   const lesson = lessonId ? getLesson(lessonId) : undefined
 
@@ -16,22 +17,22 @@ export function LearningPage() {
     return <main className="page-shell page-shell--centered"><section className="message-panel"><h1>학습 내용을 찾을 수 없어요</h1><p>주소가 잘못됐거나 아직 준비되지 않은 Lesson입니다.</p><Link className="primary-link" to="/">Part 0으로 돌아가기</Link></section></main>
   }
 
-  const saved = progress.resumeByPart[part.id]
+  const saved = searchParams.get('restart') === '1' ? undefined : progress.resumeByPart[part.id]
   const initialStepIndex = saved?.lessonId === lesson.id ? saved.stepIndex : 0
 
   return (
     <main className="page-shell learning-page">
       <Link className="back-link" to="/">← 학습 경로</Link>
-      {warning && <p className="save-warning" role="status">{warning}</p>}
       <header className="lesson-header"><p className="eyebrow">Part {part.order}</p><h1>{lesson.title}</h1><p>{lesson.objective}</p></header>
       <LearningSession
         key={lesson.id}
         lesson={lesson}
         initialStepIndex={initialStepIndex}
-        onConfirmedProgress={({ stepIndex }) => void confirmStep({ partId: part.id, lessonId: lesson.id, stepIndex })}
-        onComplete={async ({ answered, correct }) => {
+        initialProgress={saved?.lessonId === lesson.id ? saved : undefined}
+        onConfirmedProgress={(attempt) => void confirmStep({ partId: part.id, lessonId: lesson.id, ...attempt })}
+        onComplete={async ({ answered, correct, missedStepIds }) => {
           const passedPart = Boolean(lesson.passingPercentage) && hasPassed(correct, answered, lesson.passingPercentage ?? 100)
-          await completeLesson({ lessonId: lesson.id, partId: part.id, correct, answered, passedPart })
+          await completeLesson({ lessonId: lesson.id, partId: part.id, correct, answered, missedStepIds, passedPart })
           navigate(`/results/${part.id}/${lesson.id}`)
         }}
       />

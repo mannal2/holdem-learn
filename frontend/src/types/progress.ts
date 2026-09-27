@@ -2,6 +2,11 @@ export interface ResumePoint {
   partId: string
   lessonId: string
   stepIndex: number
+  answered?: number
+  correct?: number
+  submittedStepIds?: string[]
+  missedStepIds?: string[]
+  selectedOptionIds?: string[]
 }
 
 export interface LessonResult {
@@ -9,6 +14,7 @@ export interface LessonResult {
   correct: number
   bestPercentage: number
   attempts: number
+  missedStepIds?: string[]
 }
 
 export interface LearningProgress {

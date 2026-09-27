@@ -237,6 +237,13 @@ p {
   color: #603f00;
 }
 
+.global-warning {
+  position: relative;
+  z-index: 20;
+  width: min(100% - 2rem, var(--content-max));
+  margin: var(--space-4) auto 0;
+}
+
 .position-diagram {
   position: relative;
   min-height: 18rem;
@@ -294,11 +301,13 @@ p {
 .storage-note p { color: rgb(255 255 255 / 75%); }
 .text-link { font-weight: 800; }
 .lesson-list { display: grid; gap: var(--space-3); padding: 0; list-style: none; }
+.page-shell > section > h2,
+.page-shell > p { color: white; }
 .lesson-list li { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); padding: var(--space-4); border-radius: 0.75rem; background: var(--color-surface); }
 .lesson-list li div { display: grid; gap: var(--space-1); }
 .lesson-list li span { color: var(--color-text-muted); font-size: 0.85rem; }
 .dialog-backdrop { position: fixed; z-index: 10; inset: 0; display: grid; place-items: center; padding: var(--space-4); background: rgb(0 0 0 / 65%); }
-.confirm-dialog { width: min(100%, 30rem); padding: var(--space-6); border-radius: var(--radius-card); background: var(--color-surface); box-shadow: var(--shadow-card); }
+.confirm-dialog { position: static; width: min(100%, 30rem); margin: 0; padding: var(--space-6); border: 0; border-radius: var(--radius-card); background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-card); }
 .dialog-actions, .result-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
 .dialog-actions button { min-height: 2.75rem; padding-inline: var(--space-4); border-radius: 0.75rem; }
 .danger-button { border: 0; background: var(--color-danger); color: white; }
