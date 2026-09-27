@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import { getLesson, getPart } from '../content/catalog'
-import { useProgress } from '../features/progress/ProgressProvider'
+import { useProgress } from '../features/progress/progressContext'
 
 export function LessonResultPage() {
   const { partId, lessonId } = useParams(); const { progress, status } = useProgress(); const part = partId ? getPart(partId) : undefined; const lesson = lessonId ? getLesson(lessonId) : undefined

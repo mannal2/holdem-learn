@@ -2,7 +2,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getLesson, getPart } from '../content/catalog'
 import { hasPassed } from '../features/learning/calculateResult'
 import { LearningSession } from '../features/learning/LearningSession'
-import { useProgress } from '../features/progress/ProgressProvider'
+import { useProgress } from '../features/progress/progressContext'
 
 export function LearningPage() {
   const { partId, lessonId } = useParams()

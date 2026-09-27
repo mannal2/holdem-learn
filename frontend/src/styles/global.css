@@ -21,7 +21,10 @@ body {
 button,
 a {
   font: inherit;
+  overflow-wrap: anywhere;
 }
+
+button { min-height: 44px; }
 
 a {
   color: inherit;
@@ -301,8 +304,16 @@ p {
 .danger-button { border: 0; background: var(--color-danger); color: white; }
 .result-panel h1 { max-width: 20ch; font-size: clamp(1.8rem, 7vw, 3rem); }
 
+.card-comparison { display: grid; gap: var(--space-4); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
+
 @media (min-width: 48rem) {
   .part-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .card-comparison { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

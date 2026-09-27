@@ -144,3 +144,60 @@
 `catalog.ts`가 Part 0과 Part 1을 하나의 코스로 합치고 ID 조회 함수를 제공한다. 화면들은 개별 콘텐츠 파일을 직접 알지 않고 이 카탈로그에서 Part와 Lesson을 찾는다. 백엔드를 붙여도 화면과 학습 엔진은 유지하고, 카탈로그와 `ProgressRepository`의 데이터 공급 방식만 API로 바꿀 수 있다.
 
 홈의 계속 학습하기 버튼은 `progress.recent`의 `partId`와 `lessonId`를 읽어 `/learn/{partId}/{lessonId}` 주소를 만든다. `stepIndex`는 주소에 넣지 않고 학습 화면이 `resumeByPart`에서 읽으므로 주소는 단순하게 유지된다. Part별 초기화는 카탈로그의 Lesson ID 목록을 reducer에 넘겨 해당 Part의 위치·완료·점수만 제거하고, 나머지 Part 진도는 그대로 저장한다.
+
+## 9. 앱 전체 실행 흐름 한 번에 보기
+
+```text
+브라우저 주소
+→ router.tsx가 Page 선택
+→ catalog.ts에서 Part와 Lesson 조회
+→ LearningPage가 저장된 stepIndex 확인
+→ LearningSession이 Step 종류에 맞는 UI 표시
+→ 사용자가 답 제출 또는 다음 이동
+→ ProgressProvider가 reducer로 새 진도 계산
+→ ProgressRepository가 localStorage에 저장
+→ 홈 재방문 시 recent로 이어하기 주소 생성
+```
+
+실제 앱에서 `ProgressProvider`의 기본 `LocalProgressRepository`는 `useState`로 한 번만 생성한다. 렌더링할 때마다 새 저장소를 만들면 진도 변경 뒤 다시 `load`가 실행되는 문제가 생기기 때문이다. 테스트에서는 같은 인터페이스의 메모리 저장소를 넣어 브라우저 저장소와 분리한다.
+
+## 10. 새 Lesson을 추가하는 순서
+
+1. `types/course.ts`에 이미 있는 Step 종류로 콘텐츠를 표현할 수 있는지 확인한다.
+2. `content/part0.ts` 또는 `content/part1.ts`에 고유한 Lesson·Step ID로 데이터를 추가한다.
+3. 해당 Part의 `lessonIds`에 순서대로 Lesson ID를 넣는다.
+4. 선택 문제의 정답 ID가 실제 선택지 ID와 같은지 확인한다.
+5. 콘텐츠 테스트와 전체 카탈로그 검증을 실행한다.
+
+새 Step 종류가 필요하면 타입 정의, `LearningStepRenderer`, 콘텐츠 검증과 렌더링 테스트를 함께 수정한다. 기존 Step으로 의미가 다른 UI를 억지로 표현하지 않는 것이 중요하다.
+
+## 11. 카드와 테이블 UI를 수정하는 위치
+
+- 카드 한 장의 숫자·문양·접근성 이름: `components/cards/PlayingCard.tsx`
+- 프리플랍·플랍·턴·리버의 공개 장수: `components/table/PokerTable.tsx`
+- 포지션 그룹과 현재 위치 표현: `components/table/PositionDiagram.tsx`
+- 카드와 테이블 모양: 같은 폴더의 CSS와 `styles/global.css`
+
+카드 뒷면은 실제 카드 값을 DOM 접근성 이름에 노출하지 않는다. 정답과 오답도 색만 사용하지 않고 아이콘, 제목과 설명을 함께 제공한다.
+
+## 12. Spring Boot API로 교체할 때
+
+유지되는 핵심 경계는 `features/progress/ProgressRepository.ts`다. 현재 `LocalProgressRepository` 대신 로그인 사용자의 진도를 HTTP로 불러오고 저장하는 `ApiProgressRepository`를 구현해 `ProgressProvider`에 전달한다. 다음 부분은 그대로 유지할 수 있다.
+
+- `LearningSession`과 정답 판정 함수
+- Part·Lesson·Step TypeScript 타입
+- 화면 라우팅과 이어하기 주소
+- 진도 reducer의 변경 규칙
+- 학습 및 화면 컴포넌트 테스트
+
+서버를 붙일 때는 동시 수정 충돌, 인증 만료, 네트워크 재시도와 서버 데이터 버전 마이그레이션을 새로 설계해야 한다.
+
+## 13. 면접에서 설명할 주요 설계 선택 다섯 가지
+
+1. 콘텐츠를 React 컴포넌트와 분리해 하나의 학습 엔진으로 14개 Lesson을 표시한 이유
+2. reducer가 상태 계산을, Repository가 영속화를 맡도록 나눈 이유와 Spring Boot 교체 지점
+3. 사용자가 답을 선택한 순간이 아니라 확정한 순간의 다음 Step을 저장하는 이유
+4. Part 0 완료 여부와 무관하게 Part 1을 열어 둔 제품 결정과 장단점
+5. Vitest의 순수 로직·컴포넌트 테스트와 Playwright의 실제 브라우저 테스트를 함께 사용한 이유
+
+특히 Playwright는 테스트용 저장소에서는 드러나지 않았던 “기본 localStorage 저장소가 렌더마다 다시 생성되는 문제”를 발견했다. 어떤 테스트 계층이 어떤 종류의 오류를 찾았는지 설명하기 좋은 사례다.
