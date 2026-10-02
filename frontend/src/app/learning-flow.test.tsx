@@ -17,12 +17,15 @@ it('학습, 이어하기, Part 직접 접근과 부분 초기화를 한 흐름�
   await user.click(screen.getByRole('button', { name: '다음' }))
   await user.click(screen.getByRole('radio', { name: '5장' }))
   await user.click(screen.getByRole('button', { name: '정답 확인' }))
-  await waitFor(() => expect(repository.progress.resumeByPart['part-0']?.stepIndex).toBe(3))
+  await waitFor(() => expect(repository.progress.resumeByPart['part-0']?.stepIndex).toBe(2))
 
   await act(() => router.navigate('/'))
-  await screen.findByRole('heading', { name: '학습 경로' })
+  await screen.findByRole('heading', { name: '레슨 목록' })
   await act(() => router.navigate('/learn/part-0/goal-and-cards'))
-  expect(await screen.findByRole('heading', { name: '핵심 정리' })).toBeInTheDocument()
+  expect(await screen.findByRole('radio', { name: '5장' })).toBeChecked()
+  expect(screen.getByRole('status')).toHaveTextContent('정답이에요')
+  await user.click(screen.getByRole('button', { name: '다음' }))
+  expect(screen.getByRole('heading', { name: '핵심 정리' })).toBeInTheDocument()
   expect(repository.progress.lessonResults['goal-and-cards']).toBeUndefined()
 
   await act(() => router.navigate('/learn/part-1/hand-notation'))

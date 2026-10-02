@@ -5,6 +5,12 @@ export interface ChoiceOption {
   label: string
 }
 
+export interface HandRankingExample {
+  name: string
+  description: string
+  cards: [PlayingCard, PlayingCard, PlayingCard, PlayingCard, PlayingCard]
+}
+
 interface BaseStep {
   id: string
   title?: string
@@ -13,6 +19,7 @@ interface BaseStep {
 export interface ExplanationStep extends BaseStep {
   type: 'explanation'
   body: string
+  handExamples?: HandRankingExample[]
 }
 
 export type TableStage = 'preflop' | 'flop' | 'turn' | 'river' | 'showdown'
@@ -21,11 +28,21 @@ export interface TableRevealStep extends BaseStep {
   type: 'table-reveal'
   stage: TableStage
   holeCards: [PlayingCard, PlayingCard]
-  communityCards: [PlayingCard, PlayingCard, PlayingCard, PlayingCard, PlayingCard]
+  communityCards: [PlayingCard, PlayingCard, PlayingCard] | [PlayingCard, PlayingCard, PlayingCard, PlayingCard, PlayingCard]
   body: string
 }
 
-export interface SingleChoiceStep extends BaseStep {
+interface ChoiceStepBase extends BaseStep {
+  hands?: { label: string; cards: [PlayingCard, PlayingCard] }[]
+  position?: PositionGroup
+  table?: {
+    holeCards: [PlayingCard, PlayingCard]
+    communityCards: [PlayingCard, PlayingCard, PlayingCard]
+    highlightedCards?: PlayingCard[]
+  }
+}
+
+export interface SingleChoiceStep extends ChoiceStepBase {
   type: 'single-choice'
   prompt: string
   options: ChoiceOption[]
@@ -33,7 +50,7 @@ export interface SingleChoiceStep extends BaseStep {
   explanation: string
 }
 
-export interface MultiChoiceStep extends BaseStep {
+export interface MultiChoiceStep extends ChoiceStepBase {
   type: 'multi-choice'
   prompt: string
   options: ChoiceOption[]

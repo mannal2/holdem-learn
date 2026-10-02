@@ -1,4 +1,4 @@
-import type { LessonDefinition, PartDefinition } from '../types/course'
+import type { HandRankingExample, LessonDefinition, PartDefinition } from '../types/course'
 
 const holeCards = [
   { rank: 'A', suit: 'spades' },
@@ -12,6 +12,79 @@ const communityCards = [
   { rank: 'Q', suit: 'clubs' },
   { rank: '10', suit: 'hearts' },
 ] as const
+
+const handRankingExamples: HandRankingExample[] = [
+  {
+    name: '로열 플러시', description: '같은 무늬의 A·K·Q·J·10',
+    cards: [
+      { rank: 'A', suit: 'spades' }, { rank: 'K', suit: 'spades' }, { rank: 'Q', suit: 'spades' },
+      { rank: 'J', suit: 'spades' }, { rank: '10', suit: 'spades' },
+    ],
+  },
+  {
+    name: '스트레이트 플러시', description: '같은 무늬로 숫자가 이어지는 다섯 장',
+    cards: [
+      { rank: '9', suit: 'hearts' }, { rank: '8', suit: 'hearts' }, { rank: '7', suit: 'hearts' },
+      { rank: '6', suit: 'hearts' }, { rank: '5', suit: 'hearts' },
+    ],
+  },
+  {
+    name: '포카드', description: '같은 숫자 네 장',
+    cards: [
+      { rank: 'Q', suit: 'spades' }, { rank: 'Q', suit: 'hearts' }, { rank: 'Q', suit: 'diamonds' },
+      { rank: 'Q', suit: 'clubs' }, { rank: '2', suit: 'spades' },
+    ],
+  },
+  {
+    name: '풀 하우스', description: '같은 숫자 세 장과 다른 숫자 두 장',
+    cards: [
+      { rank: 'J', suit: 'spades' }, { rank: 'J', suit: 'hearts' }, { rank: 'J', suit: 'diamonds' },
+      { rank: '4', suit: 'clubs' }, { rank: '4', suit: 'hearts' },
+    ],
+  },
+  {
+    name: '플러시', description: '숫자가 이어지지 않아도 같은 무늬 다섯 장',
+    cards: [
+      { rank: 'A', suit: 'clubs' }, { rank: 'J', suit: 'clubs' }, { rank: '8', suit: 'clubs' },
+      { rank: '5', suit: 'clubs' }, { rank: '2', suit: 'clubs' },
+    ],
+  },
+  {
+    name: '스트레이트', description: '무늬와 관계없이 숫자가 이어지는 다섯 장',
+    cards: [
+      { rank: '9', suit: 'spades' }, { rank: '8', suit: 'hearts' }, { rank: '7', suit: 'diamonds' },
+      { rank: '6', suit: 'clubs' }, { rank: '5', suit: 'spades' },
+    ],
+  },
+  {
+    name: '트리플', description: '같은 숫자 세 장',
+    cards: [
+      { rank: '7', suit: 'spades' }, { rank: '7', suit: 'hearts' }, { rank: '7', suit: 'diamonds' },
+      { rank: 'K', suit: 'clubs' }, { rank: '2', suit: 'spades' },
+    ],
+  },
+  {
+    name: '투 페어', description: '숫자가 같은 카드 두 장씩 두 쌍',
+    cards: [
+      { rank: 'A', suit: 'spades' }, { rank: 'A', suit: 'diamonds' }, { rank: '8', suit: 'hearts' },
+      { rank: '8', suit: 'clubs' }, { rank: '3', suit: 'spades' },
+    ],
+  },
+  {
+    name: '원 페어', description: '숫자가 같은 카드 한 쌍',
+    cards: [
+      { rank: 'K', suit: 'spades' }, { rank: 'K', suit: 'diamonds' }, { rank: 'Q', suit: 'hearts' },
+      { rank: '7', suit: 'clubs' }, { rank: '2', suit: 'spades' },
+    ],
+  },
+  {
+    name: '하이 카드', description: '다른 족보가 없을 때 가장 높은 카드로 비교',
+    cards: [
+      { rank: 'A', suit: 'spades' }, { rank: 'J', suit: 'diamonds' }, { rank: '8', suit: 'clubs' },
+      { rank: '5', suit: 'hearts' }, { rank: '2', suit: 'spades' },
+    ],
+  },
+]
 
 export const part0Lessons: Record<string, LessonDefinition> = {
   'goal-and-cards': {
@@ -30,7 +103,7 @@ export const part0Lessons: Record<string, LessonDefinition> = {
     title: '족보의 강한 순서',
     objective: '자주 비교하는 족보의 우열을 판단한다.',
     steps: [
-      { id: 'p0-rank-intro', type: 'explanation', title: '족보 순서', body: '높은 카드부터 로열 플러시, 스트레이트 플러시, 포카드, 풀 하우스, 플러시, 스트레이트, 트리플, 투 페어, 원 페어, 하이 카드 순입니다.' },
+      { id: 'p0-rank-intro', type: 'explanation', title: '족보 순서', body: '가장 강한 족보부터 살펴보세요. 각 줄의 카드 다섯 장이 해당 족보의 한 가지 예시입니다.', handExamples: handRankingExamples },
       { id: 'p0-rank-pair', type: 'single-choice', prompt: '원 페어와 하이 카드 중 더 강한 패는?', options: [{ id: 'pair', label: '원 페어' }, { id: 'high', label: '하이 카드' }], correctOptionId: 'pair', explanation: '같은 숫자 두 장이 있는 원 페어가 어떤 조합도 없는 하이 카드보다 강합니다.' },
       { id: 'p0-rank-flush', type: 'single-choice', prompt: '플러시와 스트레이트 중 더 강한 패는?', options: [{ id: 'flush', label: '플러시' }, { id: 'straight', label: '스트레이트' }], correctOptionId: 'flush', explanation: '같은 무늬 다섯 장인 플러시는 연속된 숫자 다섯 장인 스트레이트보다 강합니다.' },
       { id: 'p0-rank-quads', type: 'single-choice', prompt: '풀 하우스와 포카드 중 더 강한 패는?', options: [{ id: 'full-house', label: '풀 하우스' }, { id: 'quads', label: '포카드' }], correctOptionId: 'quads', explanation: '같은 숫자 네 장을 만든 포카드는 트리플과 원 페어를 합친 풀 하우스보다 강합니다.' },

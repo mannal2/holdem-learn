@@ -7,6 +7,7 @@ export interface ResumePoint {
   submittedStepIds?: string[]
   missedStepIds?: string[]
   selectedOptionIds?: string[]
+  selectionsByStep?: Record<number, string[]>
 }
 
 export interface LessonResult {

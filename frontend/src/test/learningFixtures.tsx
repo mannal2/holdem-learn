@@ -7,6 +7,6 @@ export const multiChoiceStep: MultiChoiceStep = { id: 'property-question', type:
 export const singleQuestionLesson: LessonDefinition = { id: 'single-question', title: '행동 판단', objective: '콜을 구분한다.', steps: [singleChoiceStep] }
 
 export function renderLearningSession(lesson = singleQuestionLesson, overrides: Partial<LearningSessionProps> = {}) {
-  const props: LearningSessionProps = { lesson, initialStepIndex: 0, onConfirmedProgress: vi.fn(), onComplete: vi.fn(), ...overrides }
+  const props: LearningSessionProps = { lesson, initialStepIndex: 0, onProgressChange: vi.fn(), onComplete: vi.fn(), ...overrides }
   return render(<LearningSession {...props} />)
 }

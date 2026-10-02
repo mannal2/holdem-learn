@@ -14,6 +14,12 @@ it('손상된 JSON은 초기화하고 복구 상태를 알린다', async () => {
   const storage = createMemoryStorage(); storage.setItem('holdem-learning-progress', '{broken')
   await expect(new LocalProgressRepository(storage).load()).resolves.toEqual({ progress: createEmptyProgress(), recovered: true })
 })
+it('문제별 선택 기록이 배열이 아니면 손상된 진도로 처리한다', async () => {
+  const storage = createMemoryStorage()
+  const point = { partId: 'part-0', lessonId: 'goal-and-cards', stepIndex: 3, selectionsByStep: { 2: 'seven' } }
+  storage.setItem('holdem-learning-progress', JSON.stringify({ ...progressFixture, recent: point, resumeByPart: { 'part-0': point } }))
+  await expect(new LocalProgressRepository(storage).load()).resolves.toEqual({ progress: createEmptyProgress(), recovered: true })
+})
 it('지원하지 않는 진도 버전은 새 진도로 복구한다', async () => {
   const storage = createMemoryStorage(); storage.setItem('holdem-learning-progress', JSON.stringify({ version: 99 }))
   expect((await new LocalProgressRepository(storage).load()).recovered).toBe(true)

@@ -3,6 +3,11 @@ import { progressWithCompletedPart0, progressWithFailedPart1Challenge } from '..
 import { renderAppWithProgress } from '../test/renderApp'
 import { createEmptyProgress } from '../features/progress/createEmptyProgress'
 
+it.each(['/results/part-0', '/results/part-0/goal-and-cards', '/results/part-2/read-current-hand'])('결과 화면 %s에서 해당 Part의 레슨 목록으로 돌아간다', async path => {
+  renderAppWithProgress(createEmptyProgress(), path)
+  expect(await screen.findByRole('link', { name: '← 레슨 목록' })).toHaveAttribute('href', path.includes('part-2') ? '/parts/part-2' : '/parts/part-0')
+})
+
 it('Part 0을 통과하면 Part 1 추천 버튼을 보여준다', async () => {
   renderAppWithProgress(progressWithCompletedPart0, '/results/part-0')
   expect(await screen.findByRole('link', { name: 'Part 1 시작하기' })).toHaveAttribute('href', '/parts/part-1')
@@ -19,4 +24,5 @@ it('최종 도전이 80% 미만이면 놓친 개념과 다시 도전을 보여�
   expect(screen.getByRole('link', { name: '종합 도전 다시 풀기' })).toBeInTheDocument()
   expect(screen.getByText(/J♠ 9♥ · 초반/)).toBeInTheDocument()
   expect(screen.getByRole('link', { name: '종합 도전 다시 풀기' })).toHaveAttribute('href', '/learn/part-1/starting-hand-challenge?restart=1')
+  expect(screen.getByRole('link', { name: '새 카드로 연습하기' })).toHaveAttribute('href', '/practice/part-1/starting-hand-challenge')
 })

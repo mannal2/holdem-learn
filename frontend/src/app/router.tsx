@@ -9,10 +9,12 @@ import { LessonResultPage } from '../pages/LessonResultPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { PartPage } from '../pages/PartPage'
 import { PartResultPage } from '../pages/PartResultPage'
+import { PracticePage } from '../pages/PracticePage'
 
 export const routes: RouteObject[] = [
   { path: '/', element: <HomePage /> },
   { path: '/learn/:partId/:lessonId', element: <LearningPage /> },
+  { path: '/practice/:partId/:lessonId', element: <PracticePage /> },
   { path: '/parts/:partId', element: <PartPage /> },
   { path: '/results/:partId/:lessonId', element: <LessonResultPage /> },
   { path: '/results/:partId', element: <PartResultPage /> },
