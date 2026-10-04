@@ -5,7 +5,7 @@ import { createEmptyProgress } from '../features/progress/createEmptyProgress'
 it('Part 0 첫 Lesson을 열어 첫 설명을 보여준다', async () => {
   renderAppAt('/learn/part-0/goal-and-cards')
   expect(await screen.findByRole('heading', { name: '게임의 목표와 카드 구성' })).toBeInTheDocument()
-  expect(screen.getByText(/개인 카드 두 장/)).toBeInTheDocument()
+  expect(screen.getByRole('group', { name: '내 개인 카드' }).querySelectorAll('.playing-card')).toHaveLength(2)
 })
 it('복습 주소는 저장된 위치와 관계없이 첫 단계에서 시작한다', async () => {
   const progress = createEmptyProgress(); progress.resumeByPart['part-0'] = { partId: 'part-0', lessonId: 'goal-and-cards', stepIndex: 3 }; progress.recent = progress.resumeByPart['part-0']

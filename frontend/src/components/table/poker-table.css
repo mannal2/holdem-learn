@@ -1,11 +1,26 @@
 .poker-table {
   display: grid;
-  gap: 2rem;
-  padding: clamp(1rem, 5vw, 2.5rem);
-  border: 0.35rem solid #6f4930;
-  border-radius: 45% / 18%;
-  background: var(--color-felt-800);
+  gap: 1rem;
 }
 .poker-table__board,
-.poker-table__hand { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; }
+.poker-table__hand {
+  padding: clamp(0.75rem, 3vw, 1.5rem);
+  border-radius: 1rem;
+  text-align: center;
+}
+.poker-table__board {
+  border: 0.2rem solid #6f4930;
+  background: var(--color-felt-800);
+  color: var(--color-surface);
+}
+.poker-table__hand {
+  border: 1px solid rgb(23 33 29 / 20%);
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+}
+.poker-table__label { margin: 0; font-size: 1rem; }
+.poker-table__description { margin: 0.25rem 0 0.75rem; font-size: 0.8rem; }
+.poker-table__cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; }
+.poker-table .playing-card { width: clamp(2.4rem, 11vw, 4.6rem); padding: 0.4rem; font-size: 1.1rem; }
 .poker-table__highlight .playing-card { outline: 0.2rem solid #f5d56b; outline-offset: 0.12rem; }
+.poker-table__new-card { display: block; margin-top: 0.4rem; padding: 0.2rem; border: 1px dashed currentColor; border-radius: 0.3rem; font-size: 0.65rem; }

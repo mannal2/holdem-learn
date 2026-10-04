@@ -8,6 +8,15 @@ it('Part 1 다음에 여섯 레슨으로 구성된 Part 2가 이어진다', () =
   expect(courseCatalog.parts.find((part) => part.id === 'part-2')?.lessonIds).toHaveLength(6)
 })
 
+it('Part 2 다음에 드로우를 배우는 Part 3의 일곱 레슨이 이어진다', () => {
+  expect(getNextPartId(courseCatalog, 'part-2')).toBe('part-3')
+  const part = courseCatalog.parts.find(part => part.id === 'part-3')
+  expect(part?.lessonIds).toHaveLength(7)
+  expect(part?.lessonIds.map(id => courseCatalog.lessons[id]?.id)).toEqual([
+    'made-hand-and-draw', 'flush-draw', 'straight-draw', 'counting-outs', 'remaining-chances', 'draw-cautions', 'draw-challenge',
+  ])
+})
+
 it('Part 2 종합 도전은 앞 레슨과 다른 플랍 여섯 개를 사용한다', () => {
   const part = courseCatalog.parts.find((item) => item.id === 'part-2')
   expect(part).toBeDefined()

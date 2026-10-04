@@ -6,7 +6,7 @@ it('38문제의 카드와 정답 ID가 유효하고 서로 다른 문제 ID를 �
   expect(new Set(part1PracticeQuestions.map(q => q.id)).size).toBe(38)
   expect(validateCourse({ parts: [], lessons: { practice: { id: 'practice', title: '연습', objective: '검증', steps: part1PracticeQuestions } } })).toEqual([])
   for (const q of part1PracticeQuestions) {
-    const cards = q.hands!.flatMap(group => group.cards)
+    const cards = q.visual?.kind === 'position' ? q.visual.holeCards! : q.hands!.flatMap(group => group.cards)
     expect(cards.length).toBe(q.lessonId === 'compare-hands' ? 4 : 2)
     expect(new Set(cards.map(c => c.rank + c.suit)).size).toBe(cards.length)
     expect(cards.every(c => ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'].includes(c.rank) && ['spades', 'hearts', 'diamonds', 'clubs'].includes(c.suit))).toBe(true)

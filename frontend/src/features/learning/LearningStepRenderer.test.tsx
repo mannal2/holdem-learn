@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { LearningStepRenderer } from './LearningStepRenderer'
-import type { SingleChoiceStep } from '../../types/course'
+import type { ExplanationStep, SingleChoiceStep } from '../../types/course'
 
 const step: SingleChoiceStep = {
   id: 'flop-question',
@@ -29,4 +29,38 @@ it('카드가 있는 문제는 플랍을 보여주고 답을 확인한 뒤 근�
   rerender(<LearningStepRenderer step={step} selectedOptionIds={['pair']} feedbackVisible onSelect={() => {}} />)
   expect(screen.getByLabelText('공용 카드').querySelectorAll('.poker-table__highlight')).toHaveLength(1)
   expect(screen.getByLabelText('내 개인 카드').querySelectorAll('.poker-table__highlight')).toHaveLength(1)
+})
+
+it.each([
+  ['turn', 4],
+  ['river', 5],
+] as const)('%s 문제는 공개 단계에 맞는 공용 카드를 보여준다', (stage, count) => {
+  const question = {
+    ...step,
+    table: {
+      ...step.table,
+      stage,
+      communityCards: [
+        ...step.table!.communityCards,
+        { rank: '7', suit: 'clubs' },
+        { rank: 'J', suit: 'diamonds' },
+      ].slice(0, count),
+    },
+  } as unknown as SingleChoiceStep
+  render(<LearningStepRenderer step={question} selectedOptionIds={[]} feedbackVisible={false} onSelect={() => {}} />)
+  expect(screen.getByLabelText('클로버 7')).toBeInTheDocument()
+  expect(screen.queryAllByLabelText('뒤집힌 카드')).toHaveLength(0)
+  expect(screen.getAllByTestId('community-card')).toHaveLength(count)
+  if (stage === 'river') expect(screen.getByLabelText('다이아몬드 잭')).toBeInTheDocument()
+})
+
+it('설명에서 아웃츠 아홉 장을 실제 카드로 보여준다', () => {
+  const explanation = {
+    id: 'outs-example', type: 'explanation', title: '남은 하트', body: '하트는 아홉 장입니다.',
+    cardGroups: [{ label: '플러시를 완성하는 9아웃츠', cards: ['K', 'J', '10', '8', '7', '6', '5', '3', '2'].map(rank => ({ rank, suit: 'hearts' })) }],
+  } as unknown as ExplanationStep
+  render(<LearningStepRenderer step={explanation} selectedOptionIds={[]} feedbackVisible={false} onSelect={() => {}} />)
+  const group = screen.getByRole('group', { name: '플러시를 완성하는 9아웃츠' })
+  expect(group.querySelectorAll('.playing-card')).toHaveLength(9)
+  expect(screen.getByLabelText('하트 킹')).toBeInTheDocument()
 })

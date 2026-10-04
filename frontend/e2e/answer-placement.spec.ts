@@ -1,0 +1,27 @@
+import { expect, test } from '@playwright/test'
+
+test('강도 질문·분산된 보기와 비교 패 B의 선택을 새로고침 뒤 복원한다', async ({ page }) => {
+  await page.goto('/learn/part-1/classify-strength?restart=1')
+  await page.getByRole('button', { name: '다음', exact: true }).click()
+  await expect(page.getByRole('group', { name: 'A♠ A♥는 어떤 시작 패인가요?' })).toBeVisible()
+  await page.getByRole('radio', { name: '강함', exact: true }).check()
+  await page.getByRole('button', { name: '정답 확인' }).click()
+  await page.getByRole('button', { name: '다음', exact: true }).click()
+  await expect(page.getByRole('radio').nth(1)).toHaveAccessibleName('괜찮음')
+  await page.getByRole('radio', { name: '괜찮음', exact: true }).check()
+  await page.getByRole('button', { name: '정답 확인' }).click()
+  await page.reload()
+  await expect(page.getByRole('radio', { name: '괜찮음', exact: true })).toBeChecked()
+  await expect(page.getByRole('status')).toContainText('정답이에요')
+
+  await page.goto('/learn/part-1/compare-hands?restart=1')
+  await page.getByRole('radio', { name: '시작 패 A', exact: true }).check()
+  await page.getByRole('button', { name: '정답 확인' }).click()
+  await page.getByRole('button', { name: '다음', exact: true }).click()
+  await expect(page.getByRole('group', { name: '시작 패 B', exact: true }).getByLabel('스페이드 9')).toBeVisible()
+  await page.getByRole('radio', { name: '시작 패 B', exact: true }).check()
+  await page.getByRole('button', { name: '정답 확인' }).click()
+  await page.reload()
+  await expect(page.getByRole('radio', { name: '시작 패 B', exact: true })).toBeChecked()
+  await expect(page.getByRole('status')).toContainText('정답이에요')
+})

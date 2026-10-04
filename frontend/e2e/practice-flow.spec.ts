@@ -46,7 +46,7 @@ test('Part 1 각 연습의 카드·포지션과 종합 여섯 문제를 표시�
     await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuemax', id === 'starting-hand-challenge' ? '6' : '4')
     if (id === 'compare-hands') await expect(page.locator('.practice-hands .playing-card')).toHaveCount(4)
     if (id === 'classify-strength') await expect(page.getByRole('radio')).toHaveCount(2)
-    if (id === 'same-hand-different-position') await expect(page.locator('[aria-current]')).toHaveCount(1)
+    if (id === 'same-hand-different-position') await expect(page.getByRole('group', { name: / · 내 자리$/ })).toHaveCount(1)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     if (id === 'starting-hand-challenge') {
       for (let i = 0; i < 6; i++) {

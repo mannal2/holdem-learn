@@ -23,7 +23,9 @@ test('Part 1에 직접 접근해 카드 특징 문제의 해설을 확인한다'
   await page.getByRole('checkbox', { name: '수딧' }).check()
   await page.getByRole('checkbox', { name: '커넥티드' }).check()
   await page.getByRole('button', { name: '정답 확인' }).click()
-  await expect(page.getByText(/A와 K는 높은 카드이면서/)).toBeVisible()
+  await expect(page.getByRole('status')).toContainText('정답이에요')
+  await expect(page.getByLabel('스페이드 에이스')).toBeVisible()
+  await expect(page.getByLabel('스페이드 킹')).toBeVisible()
 })
 
 test('레슨의 해설 화면을 홈 복귀와 새로고침 뒤에도 그대로 이어한다', async ({ page }) => {
@@ -58,8 +60,16 @@ test('종합 도전 실패는 재도전 필요로 표시하고 재도전 중에�
   page.on('pageerror', error => errors.push(error.message))
   await page.goto('/learn/part-2/flop-reading-challenge')
   await page.getByRole('button', { name: '다음', exact: true }).click()
+  const wrongAnswers = [
+    'Q 하이 카드: 짝이 없음',
+    'A 원 페어: 높은 A를 가지고 있음',
+    '셋: K 세 장',
+    '6 두 장과 Q 두 장으로 만든 투 페어',
+    '내 A와 공용 카드가 짝이 되어 나만 10 페어를 쓴다.',
+    '내가 이미 플러시를 만들었다.',
+  ]
   for (let i = 0; i < 6; i++) {
-    await page.getByRole('radio').last().check()
+    await page.getByRole('radio', { name: wrongAnswers[i], exact: true }).check()
     await page.getByRole('button', { name: '정답 확인' }).click()
     await page.getByRole('button', { name: i === 5 ? '완료' : '다음', exact: true }).click()
   }

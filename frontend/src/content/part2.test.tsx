@@ -16,9 +16,11 @@ it('종합 도전 전에 세 가지 판단 질문을 보여준 뒤 새 카드 �
 it.each([
   ['board-and-risk', 'p2-board-risk'],
   ['flop-reading-challenge', 'p2-challenge-flush-risk'],
-])('%s의 플러시 위험 문제는 제출 후 같은 무늬의 공용 카드 세 장을 강조한다', (lessonId, stepId) => {
+])('%s의 플러시 위험 문제는 제출 후 선택과 의도한 카드 표시를 유지한다', (lessonId, stepId) => {
   const step = part2Lessons[lessonId].steps.find((item) => item.id === stepId)
   if (!step || (step.type !== 'single-choice' && step.type !== 'multi-choice')) throw new Error('문제 Step을 찾을 수 없습니다.')
-  render(<LearningStepRenderer step={step} selectedOptionIds={[]} feedbackVisible onSelect={() => {}} />)
-  expect(screen.getByLabelText('공용 카드').querySelectorAll('.poker-table__highlight')).toHaveLength(3)
+  render(<LearningStepRenderer step={step} selectedOptionIds={[lessonId === 'board-and-risk' ? 'second' : 'caution']} feedbackVisible onSelect={() => {}} />)
+  expect(screen.getByRole('radio', { checked: true })).toBeDisabled()
+  if (lessonId === 'board-and-risk') expect(screen.queryByLabelText('공용 카드')).not.toBeInTheDocument()
+  else expect(screen.getByLabelText('공용 카드').querySelectorAll('.poker-table__highlight')).toHaveLength(3)
 })

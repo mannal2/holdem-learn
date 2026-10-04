@@ -1,4 +1,5 @@
 import { part2PracticeQuestions } from '../../content/part2Practice'
+import { part3PracticeQuestions } from '../../content/part3Practice'
 import { part1PracticeQuestions, type PracticeQuestion } from '../../content/part1Practice'
 import { getPartForLesson } from '../../content/catalog'
 import type { SessionProgress } from '../learning/LearningSession'
@@ -12,9 +13,9 @@ export interface PracticeSession {
 export interface PracticeData { version: 1; sessions: Record<string, PracticeSession>; results: Record<string, PracticeSession> }
 const KEY = 'holdem-practice-progress'
 const empty = (): PracticeData => ({ version: 1, sessions: {}, results: {} })
-export const practiceLessonIds = ['identify-properties', 'compare-hands', 'classify-strength', 'same-hand-different-position', 'starting-hand-challenge', 'preflop-to-flop', 'read-current-hand', 'pair-types', 'two-pair-and-set', 'board-and-risk', 'flop-reading-challenge']
-const practiceQuestions: PracticeQuestion[] = [...part1PracticeQuestions, ...part2PracticeQuestions]
-export const isComprehensivePractice = (lessonId: string) => ['starting-hand-challenge', 'flop-reading-challenge'].includes(lessonId)
+export const practiceLessonIds = ['identify-properties', 'compare-hands', 'classify-strength', 'same-hand-different-position', 'starting-hand-challenge', 'preflop-to-flop', 'read-current-hand', 'pair-types', 'two-pair-and-set', 'board-and-risk', 'flop-reading-challenge', 'made-hand-and-draw', 'flush-draw', 'straight-draw', 'counting-outs', 'remaining-chances', 'draw-cautions', 'draw-challenge']
+const practiceQuestions: PracticeQuestion[] = [...part1PracticeQuestions, ...part2PracticeQuestions, ...part3PracticeQuestions]
+export const isComprehensivePractice = (lessonId: string) => ['starting-hand-challenge', 'flop-reading-challenge', 'draw-challenge'].includes(lessonId)
 export function getPracticePart(lessonId: string) {
   return practiceLessonIds.includes(lessonId) ? getPartForLesson(lessonId) : undefined
 }
@@ -45,12 +46,29 @@ function groups(lessonId: string): [string, number][] {
     case 'two-pair-and-set': return [['two', 2], ['set', 2]]
     case 'board-and-risk': return [['shared', 2], ['flush-risk', 1], ['straight-risk', 1]]
     case 'flop-reading-challenge': return [['high', 1], ['top', 1], ['two', 1], ['set', 1], ['shared', 1], [shuffle(['flush-risk', 'straight-risk'])[0], 1]]
+    case 'made-hand-and-draw': return [['p3-current', 2], ['p3-pair-draw', 2]]
+    case 'flush-draw': return [['p3-flush-two', 1], ['p3-flush-one', 1], ['p3-backdoor', 1], [shuffle(['p3-flush-two', 'p3-flush-one'])[0], 1]]
+    case 'straight-draw': return [['p3-open', 1], ['p3-gut', 1], ['p3-boundary', 1], [shuffle(['p3-open', 'p3-gut'])[0], 1]]
+    case 'counting-outs': return [['p3-outs-flush', 1], ['p3-outs-open', 1], ['p3-outs-gut', 1], [shuffle(['p3-outs-flush', 'p3-outs-open', 'p3-outs-gut'])[0], 1]]
+    case 'remaining-chances': return [['p3-opportunities', 1], ['p3-compare-chances', 1], ['p3-estimate', 2]]
+    case 'draw-cautions': return [['p3-win', 2], ['p3-overlap', 2]]
+    case 'draw-challenge': return [
+      [shuffle(['p3-current', 'p3-pair-draw'])[0], 1],
+      [shuffle(['p3-flush-two', 'p3-flush-one', 'p3-backdoor'])[0], 1],
+      [shuffle(['p3-open', 'p3-gut', 'p3-boundary'])[0], 1],
+      [shuffle(['p3-outs-flush', 'p3-outs-open', 'p3-outs-gut'])[0], 1],
+      [shuffle(['p3-opportunities', 'p3-compare-chances', 'p3-estimate'])[0], 1],
+      [shuffle(['p3-win', 'p3-overlap'])[0], 1],
+    ]
     default: throw new Error('알 수 없는 연습 레슨')
   }
 }
 
 export function createPracticeSession(lessonId: string, previousIds: string[] = []): PracticeSession {
-  const questions = groups(lessonId).flatMap(([concept, count]) => {
+  // 같은 개념의 추가 한 문제는 합쳐서 뽑아 회차 안의 중복을 막습니다.
+  const counts = new Map<string, number>()
+  for (const [concept, count] of groups(lessonId)) counts.set(concept, (counts.get(concept) ?? 0) + count)
+  const questions = [...counts].flatMap(([concept, count]) => {
     const candidates = practiceQuestions.filter(q => q.concept === concept && belongsToPractice(q, lessonId))
     const fresh = shuffle(candidates.filter(q => !previousIds.includes(q.id)))
     const repeated = shuffle(candidates.filter(q => previousIds.includes(q.id)))

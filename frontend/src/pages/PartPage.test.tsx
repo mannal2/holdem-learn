@@ -5,6 +5,25 @@ import { progressInBothParts } from '../test/progressFixtures'
 import { renderAppWithProgress } from '../test/renderApp'
 import { getPart } from '../content/catalog'
 
+it('Part 3의 일곱 레슨 옆에 추가·종합 연습을 연결한다', async () => {
+  renderAppWithProgress(createEmptyProgress(), '/parts/part-3')
+  await screen.findByRole('heading', { name: 'Lesson 목록' })
+  expect(document.querySelectorAll('.lesson-list li')).toHaveLength(7)
+  expect(document.querySelectorAll('.lesson-practice-link')).toHaveLength(7)
+  expect(screen.getByRole('link', { name: '미래 가능성 종합 도전 · 종합 연습' })).toHaveAttribute('href', '/practice/part-3/draw-challenge')
+  expect(screen.getByRole('link', { name: 'Part 3 시작하기' })).toHaveAttribute('href', '/learn/part-3/made-hand-and-draw')
+})
+
+it.each([[4, '재도전 필요', '다시 풀기'], [5, '완료', '복습하기']] as const)('Part 3 종합 도전 %i/6 결과의 상태를 표시한다', async (correct, status, action) => {
+  const progress = createEmptyProgress()
+  progress.completedLessonIds = ['draw-challenge']
+  progress.lessonResults['draw-challenge'] = { answered: 6, correct, bestPercentage: Math.round(correct / 6 * 100), attempts: 1 }
+  renderAppWithProgress(progress, '/parts/part-3')
+  const row = (await screen.findByText('미래 가능성 종합 도전')).closest('li')!
+  expect(within(row).getByText(status, { exact: true })).toBeInTheDocument()
+  expect(within(row).getByRole('link', { name: action })).toHaveAttribute('href', '/learn/part-3/draw-challenge?restart=1')
+})
+
 it('Part 1은 승인된 네 레슨과 종합 도전에만 연습 링크를 제공한다', async () => {
   renderAppWithProgress(createEmptyProgress(), '/parts/part-1')
   await screen.findByRole('heading', { name: 'Lesson 목록' })
