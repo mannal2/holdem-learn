@@ -20,6 +20,30 @@ async function toQuestion(page: Page, lessonId: string, questionId: string) {
   throw new Error('대상 문제를 찾지 못했습니다.')
 }
 
+test('재레이즈 용어와 관찰 근거를 명확하게 표시하고 답·해설을 복원한다', async ({ page }) => {
+  await toQuestion(page, 'position-and-first-action', 'p4-q04')
+  await expect(page.getByRole('group', { name: '앞사람이 레이즈한 금액을 다시 올리는 행동을 무엇이라고 하나요?', exact: true })).toBeVisible()
+  await expect(page.getByRole('group', { name: '이번 행동', exact: true }).getByRole('listitem')).toHaveText(['앞사람 레이즈', '상대가 금액을 더 올림'])
+  await page.getByRole('radio', { name: '재레이즈', exact: true }).check()
+  await page.getByRole('button', { name: '정답 확인', exact: true }).click()
+  await page.reload()
+  await expect(page.getByRole('radio', { name: '재레이즈', exact: true })).toBeChecked()
+  await expect(page.getByRole('status')).toContainText('정답이에요')
+  await page.getByRole('button', { name: '다음', exact: true }).click()
+  await page.getByRole('button', { name: '다음', exact: true }).click()
+  await expect(page.getByRole('group', { name: '이전에 본 모습', exact: true })).toContainText('이 상대는 재레이즈한 뒤 카드를 공개했을 때, 대부분 AA·KK·AK를 가지고 있었어요.')
+  await expect(page.getByRole('group', { name: '이번 상황', exact: true })).toContainText('앞사람이 레이즈하자, 이 상대가 재레이즈했어요.')
+  await page.getByRole('radio', { name: 'AA·KK·AK 같은 강한 시작패', exact: true }).check()
+  await page.getByRole('button', { name: '정답 확인', exact: true }).click()
+  await page.reload()
+  await expect(page.getByRole('radio', { name: 'AA·KK·AK 같은 강한 시작패', exact: true })).toBeChecked()
+  await expect(page.getByRole('status')).toContainText('정답이에요')
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('holdem-learning-progress')!).resumeByPart['part-4'])
+  expect(saved.submittedStepIds).toEqual(['p4-q03', 'p4-q04', 'p4-q05-v2'])
+  expect(saved.correct).toBe(3)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+})
+
 for (const lessonId of part4.lessonIds) {
   const lesson = part4Lessons[lessonId]
   test(`${lessonId}: 모든 화면의 카드 소속·해설·모바일 넘침 확인`, async ({ page }, testInfo) => {
