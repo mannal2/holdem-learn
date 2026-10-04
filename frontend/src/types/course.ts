@@ -13,6 +13,7 @@ export interface HandRankingExample {
 
 interface BaseStep {
   id: string
+  supersedes?: string
   title?: string
   visual?: RuleVisual
 }
@@ -28,6 +29,7 @@ export interface RangeSceneVisual {
   boardHighlights?: PlayingCard[]
   holeHighlights?: PlayingCard[]
   markLatestCard?: boolean
+  bet?: { pot: number; bet: number }
 }
 
 export type RuleVisual =

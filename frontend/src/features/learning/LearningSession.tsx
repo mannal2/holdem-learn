@@ -24,6 +24,7 @@ export function LearningSession({ lesson, initialStepIndex, initialProgress, onP
   if (!step) return <p>학습 콘텐츠를 표시할 수 없어요.</p>
   const question = step.type === 'single-choice' || step.type === 'multi-choice'
   const last = state.stepIndex === lesson.steps.length - 1
+  const pendingStepIndex = lesson.steps.findIndex(step => (step.type === 'single-choice' || step.type === 'multi-choice') && !state.submittedStepIds.includes(step.id))
   const feedback = state.feedback ?? (question && state.submittedStepIds.includes(step.id) ? { isCorrect: !state.missedStepIds.includes(step.id), explanation: step.explanation } : null)
   const select = (optionId: string, multiple: boolean) => {
     if (feedback) return
@@ -39,6 +40,13 @@ export function LearningSession({ lesson, initialStepIndex, initialProgress, onP
     onProgressChange({ stepIndex, answered: state.answered, correct: state.correct, submittedStepIds: state.submittedStepIds, missedStepIds: state.missedStepIds, selectedOptionIds: selectionsByStep[stepIndex] ?? [], selectionsByStep })
   }
   const advance = () => {
+    // 복귀 화면은 유지하되, 교체된 앞 문제를 건너뛰고 완료하지 않도록 안내합니다.
+    if (last && pendingStepIndex >= 0) {
+      const selectionsByStep = { ...state.selectionsByStep, [state.stepIndex]: state.selectedOptionIds }
+      dispatch({ type: 'go-to', stepIndex: pendingStepIndex })
+      onProgressChange({ stepIndex: pendingStepIndex, answered: state.answered, correct: state.correct, submittedStepIds: state.submittedStepIds, missedStepIds: state.missedStepIds, selectedOptionIds: selectionsByStep[pendingStepIndex] ?? [], selectionsByStep })
+      return
+    }
     if (last) { onComplete({ answered: state.answered, correct: state.correct, missedStepIds: state.missedStepIds }); return }
     const next = state.stepIndex + 1
     const selectionsByStep = { ...state.selectionsByStep, [state.stepIndex]: state.selectedOptionIds }
@@ -53,5 +61,5 @@ export function LearningSession({ lesson, initialStepIndex, initialProgress, onP
     // 제출은 현재 문제와 해설을 저장하고, 다음 버튼을 눌러야 다음 위치를 저장합니다.
     onProgressChange({ stepIndex: state.stepIndex, answered: state.answered + 1, correct: state.correct + (isCorrect ? 1 : 0), submittedStepIds: [...state.submittedStepIds, step.id], missedStepIds: isCorrect ? state.missedStepIds : [...state.missedStepIds, step.id], selectedOptionIds: state.selectedOptionIds, selectionsByStep })
   }
-  return <section ref={sessionRef} className="learning-session"><ProgressBar current={state.stepIndex + 1} total={lesson.steps.length} label={lesson.title} /><LearningStepRenderer step={step} selectedOptionIds={state.selectedOptionIds} feedbackVisible={Boolean(feedback)} onSelect={select} />{feedback && <FeedbackPanel status={feedback.isCorrect ? 'correct' : 'incorrect'} title={feedback.isCorrect ? '정답이에요' : '다시 확인해 봐요'} explanation={feedback.explanation} />}<div className="learning-session__actions"><button type="button" onClick={previous} disabled={state.stepIndex === 0}>이전</button>{question && !feedback ? <button type="button" onClick={submit} disabled={!state.selectedOptionIds.length}>정답 확인</button> : <button type="button" onClick={advance}>{last ? '완료' : '다음'}</button>}</div></section>
+  return <section ref={sessionRef} className="learning-session"><ProgressBar current={state.stepIndex + 1} total={lesson.steps.length} label={lesson.title} /><LearningStepRenderer step={step} selectedOptionIds={state.selectedOptionIds} feedbackVisible={Boolean(feedback)} onSelect={select} />{feedback && <FeedbackPanel status={feedback.isCorrect ? 'correct' : 'incorrect'} title={feedback.isCorrect ? '정답이에요' : '다시 확인해 봐요'} explanation={feedback.explanation} />}<div className="learning-session__actions"><button type="button" onClick={previous} disabled={state.stepIndex === 0}>이전</button>{question && !feedback ? <button type="button" onClick={submit} disabled={!state.selectedOptionIds.length}>정답 확인</button> : <button type="button" onClick={advance}>{last ? pendingStepIndex >= 0 ? '남은 문제 풀기' : '완료' : '다음'}</button>}</div></section>
 }

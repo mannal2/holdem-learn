@@ -1,6 +1,7 @@
 import type { LearningProgress, ResumePoint } from '../../types/progress'
 import { getLesson, getPart } from '../../content/catalog'
 import { createEmptyProgress } from './createEmptyProgress'
+import { reconcileLessonProgress } from './reconcileLessonProgress'
 import type { ProgressLoadResult, ProgressRepository } from './ProgressRepository'
 
 const KEY = 'holdem-learning-progress'
@@ -32,7 +33,7 @@ export class LocalProgressRepository implements ProgressRepository {
       if (!raw) return { progress: createEmptyProgress(), recovered: false }
       const parsed: unknown = JSON.parse(raw)
       if (!isProgress(parsed)) throw new Error('invalid progress')
-      return { progress: parsed, recovered: false }
+      return { progress: reconcileLessonProgress(parsed), recovered: false }
     } catch {
       try { this.storage().removeItem(KEY) } catch { /* 저장소가 차단돼도 앱은 계속한다. */ }
       return { progress: createEmptyProgress(), recovered: true }

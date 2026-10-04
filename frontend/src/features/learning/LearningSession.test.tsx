@@ -13,6 +13,22 @@ const reviewLesson: LessonDefinition = {
   ],
 }
 
+it('현재 요약 화면은 복원하되 미제출 문제를 풀기 전에는 완료하지 않는다', async () => {
+  const user = userEvent.setup()
+  const onComplete = vi.fn()
+  const onProgressChange = vi.fn()
+  renderLearningSession(reviewLesson, { initialStepIndex: 2, initialProgress: { answered: 0, correct: 0, submittedStepIds: [], missedStepIds: [], selectionsByStep: {} }, onComplete, onProgressChange })
+  expect(screen.getByText('마지막입니다.')).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: '남은 문제 풀기' }))
+  expect(onComplete).not.toHaveBeenCalled()
+  expect(screen.getByRole('radio', { name: '콜' })).not.toBeChecked()
+  await user.click(screen.getByRole('radio', { name: '콜' }))
+  await user.click(screen.getByRole('button', { name: '정답 확인' }))
+  await user.click(screen.getByRole('button', { name: '다음' }))
+  await user.click(screen.getByRole('button', { name: '완료' }))
+  expect(onComplete).toHaveBeenCalledWith({ answered: 1, correct: 1, missedStepIds: [] })
+})
+
 it('첫 단계의 이전 버튼은 비활성화하고, 다음 단계에서는 이전 화면으로 돌아간다', async () => {
   const user = userEvent.setup()
   const onProgressChange = vi.fn()

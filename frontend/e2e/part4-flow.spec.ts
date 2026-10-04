@@ -42,7 +42,7 @@ for (const lessonId of part4.lessonIds) {
         await expect(page.locator('.poker-table__board .playing-card')).toHaveCount(visual.board.length)
         await expect(page.locator('.poker-table__hand .playing-card')).toHaveCount(visual.holeCards ? 2 : 0)
       }
-      if (step.id === 'p4-q17' || step.id === 'p4-q12' || step.id === 'p4-q03') await page.screenshot({ path: testInfo.outputPath(`${step.id}.png`), fullPage: true })
+      if (['p4-q17', 'p4-q12', 'p4-q03', 'p4-1-range', 'p4-2-early', 'p4-6-bet', 'p4-q18-v2', 'p4-q24-v2'].includes(step.id)) await page.screenshot({ path: testInfo.outputPath(`${step.id}.png`), fullPage: true })
       await page.getByRole('button', { name: step.type === 'summary' ? '완료' : '다음', exact: true }).click()
     }
     await expect(page.getByRole('link', { name: '← 레슨 목록', exact: true })).toHaveAttribute('href', '/parts/part-4')
@@ -114,7 +114,7 @@ test('종합 도전 4/6·5/6 경계와 실패 결과의 그림·조건을 확인
     await expect(page.getByText(`${correctCount}/6 정답 · ${Math.round(correctCount / 6 * 100)}%`, { exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: '새 카드로 연습하기' })).toHaveCount(0)
     if (correctCount === 4) {
-      await expect(page.getByText('앞선 여러 판에서 강한 패로 큰 베팅을 자주 했어요.', { exact: true })).toBeVisible()
+      await expect(page.getByText('앞선 판에서 패를 확인했을 때, 이 상대의 큰 베팅은 대부분 강한 패였어요.', { exact: true })).toBeVisible()
       await expect(page.locator('.poker-table__board .playing-card')).toHaveCount(4)
       await expect(page.locator('.poker-table__highlight')).toHaveCount(5)
     } else await expect(page.getByRole('link', { name: 'Part 결과 보기' })).toBeVisible()
@@ -122,4 +122,35 @@ test('종합 도전 4/6·5/6 경계와 실패 결과의 그림·조건을 확인
     const row = page.locator('.lesson-list li').filter({ has: page.getByText(lesson.title, { exact: true }) })
     await expect(row.getByText(correctCount === 4 ? '재도전 필요' : '완료', { exact: true })).toBeVisible()
   }
+})
+
+test('구판 종합의 마지막 화면은 유지하고 변경된 세 문제를 풀어야 완료한다', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => {
+    const point = { partId: 'part-4', lessonId: 'range-challenge', stepIndex: 7, answered: 6, correct: 5, submittedStepIds: ['p4-q19', 'p4-q20', 'p4-q21', 'p4-q22', 'p4-q23', 'p4-q24'], missedStepIds: ['p4-q23'], selectedOptionIds: [], selectionsByStep: { 1: ['p4-q19-option-1'], 2: ['p4-q20-option-0'], 3: ['p4-q21-option-2'], 4: ['p4-q22-option-0', 'p4-q22-option-1'], 5: ['p4-q23-option-0'], 6: ['p4-q24-option-0'] } }
+    localStorage.setItem('holdem-learning-progress', JSON.stringify({ version: 1, recent: point, resumeByPart: { 'part-4': point, 'part-0': { partId: 'part-0', lessonId: 'goal-and-cards', stepIndex: 1 } }, completedLessonIds: ['range-challenge'], completedPartIds: ['part-4'], lessonResults: { 'range-challenge': { answered: 6, correct: 5, bestPercentage: 100, attempts: 2, missedStepIds: ['p4-q23'] } } }))
+  })
+  await page.goto('/learn/part-4/range-challenge')
+  await expect(page.getByRole('heading', { name: '핵심 정리', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: '완료', exact: true })).toHaveCount(0)
+  await page.getByRole('button', { name: '남은 문제 풀기', exact: true }).click()
+  const lesson = part4Lessons['range-challenge']
+  for (const step of lesson.steps.slice(4, 7)) {
+    await expect(page.getByRole('group', { name: step.type === 'single-choice' || step.type === 'multi-choice' ? step.prompt : '', exact: true })).toBeVisible()
+    await expect(page.getByRole('status')).toHaveCount(0)
+    await answer(page, step)
+    await page.reload()
+    await expect(page.getByRole('status')).toContainText('정답이에요')
+    if (isQuestion(step)) for (const option of step.options) {
+      const selected = step.type === 'single-choice' ? option.id === step.correctOptionId : step.correctOptionIds.includes(option.id)
+      await expect(page.getByRole(step.type === 'single-choice' ? 'radio' : 'checkbox', { name: option.label, exact: true })).toBeChecked({ checked: selected })
+    }
+    await page.getByRole('button', { name: '다음', exact: true }).click()
+  }
+  await page.getByRole('button', { name: '완료', exact: true }).click()
+  await expect(page.getByText('6/6 정답 · 100%', { exact: true })).toBeVisible()
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('holdem-learning-progress')!))
+  expect(saved.resumeByPart['part-0'].stepIndex).toBe(1)
+  expect(saved.lessonResults['range-challenge'].attempts).toBe(3)
+  expect(saved.lessonResults['range-challenge'].bestPercentage).toBe(100)
 })

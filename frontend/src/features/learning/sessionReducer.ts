@@ -7,6 +7,7 @@ export type LearningSessionAction =
   | { type: 'submit-answer'; step: SingleChoiceStep | MultiChoiceStep }
   | { type: 'advance'; totalSteps: number }
   | { type: 'previous' }
+  | { type: 'go-to'; stepIndex: number }
   | { type: 'reset'; stepIndex: number }
 
 export function createSessionState(stepIndex = 0): LearningSessionState { return { stepIndex, selectedOptionIds: [], selectionsByStep: {}, feedback: null, answered: 0, correct: 0, submittedStepIds: [], missedStepIds: [] } }
@@ -24,8 +25,8 @@ export function sessionReducer(state: LearningSessionState, action: LearningSess
     const feedback = evaluateAnswer(action.step, state.selectedOptionIds)
     return { ...state, feedback, answered: state.answered + 1, correct: state.correct + (feedback.isCorrect ? 1 : 0), submittedStepIds: [...state.submittedStepIds, action.step.id], missedStepIds: feedback.isCorrect ? state.missedStepIds : [...state.missedStepIds, action.step.id] }
   }
-  if (action.type === 'advance' || action.type === 'previous') {
-    const stepIndex = action.type === 'advance' ? Math.min(state.stepIndex + 1, action.totalSteps) : Math.max(state.stepIndex - 1, 0)
+  if (action.type === 'advance' || action.type === 'previous' || action.type === 'go-to') {
+    const stepIndex = action.type === 'go-to' ? action.stepIndex : action.type === 'advance' ? Math.min(state.stepIndex + 1, action.totalSteps) : Math.max(state.stepIndex - 1, 0)
     const selectionsByStep = { ...state.selectionsByStep, [state.stepIndex]: state.selectedOptionIds }
     return { ...state, stepIndex, selectionsByStep, selectedOptionIds: selectionsByStep[stepIndex] ?? [], feedback: null }
   }

@@ -141,6 +141,7 @@ export function validateCourse(catalog: CourseCatalog): string[] {
 
 function validateRangeScene(id: string, visual: RangeSceneVisual, allowImpossibleExample: boolean): string[] {
   const errors: string[] = []
+  if (visual.bet && (visual.bet.pot <= 0 || visual.bet.bet <= 0 || !Number.isFinite(visual.bet.pot) || !Number.isFinite(visual.bet.bet))) errors.push(`Step ${id}의 팟·베팅 금액이 올바르지 않습니다.`)
   const key = (card: PlayingCard) => card.rank + card.suit
   const known = [...visual.board, ...visual.holeCards ?? []]
   const knownKeys = new Set(known.map(key))
