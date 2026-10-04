@@ -118,7 +118,20 @@ export const part4Lessons: Record<string, LessonDefinition> = {
     id: 'updating-a-range', title: '새로운 정보로 다시 판단해요', objective: '새 카드와 행동을 보고 가능한 패를 다시 살펴봐요.',
     steps: [
       explain('p4-6-start', '출발한 상황을 기억해요', '상대는 앞선 사람들이 폴드한 뒤 버튼에서 레이즈했어요.', { kind: 'position-scenes', rows: [{ label: '6인 · 상대는 버튼, 나는 BB', activeGroup: 'late', foldedBefore: true }], holeCards: s6Hole, history: s6Start }),
-      question(15, '내가 가진 카드 때문에 제외해야 하는 후보는 무엇인가요?', ['확인용 후보 · A♥ Q♣', '후보 A · K♥ Q♥', '후보 C · 8♣ 8♦'], [0], 'A♥는 내가 가지고 있어요. 확인용 후보는 제외하고, A·B·C는 계속 살펴봐요.', scene('', [candidate('확인용 후보', 'Ah Qc', { impossibleExample: true }), s6Candidates[0], s6Candidates[2]], { holeCards: s6Hole, history: s6Start }), scene('', [candidate('확인용 후보', 'Ah Qc', { impossibleExample: true, status: '내 A♥와 충돌 · 제외', highlightedCards: cards('Ah') }), s6Candidates[0], s6Candidates[2]], { holeCards: s6Hole, history: s6Start, holeHighlights: cards('Ah') })),
+      {
+        id: 'p4-q15', type: 'single-choice', prompt: '내가 가진 카드 때문에 제외해야 하는 후보는 무엇인가요?',
+        // 기존 보기 ID는 같은 카드에 유지해 저장된 선택을 복원합니다.
+        options: [
+          { id: 'p4-q15-option-1', label: '후보 A · K♥ Q♥' },
+          { id: 'p4-q15-option-3', label: '후보 B · J♠ 10♠' },
+          { id: 'p4-q15-option-2', label: '후보 C · 8♣ 8♦' },
+          { id: 'p4-q15-option-0', label: '후보 D · A♥ Q♣' },
+        ],
+        correctOptionId: 'p4-q15-option-0',
+        explanation: 'A♥는 내가 가지고 있어요. 후보 D는 제외하고 A·B·C를 살펴봐요.',
+        visual: scene('', [...s6Candidates, candidate('후보 D', 'Ah Qc', { impossibleExample: true })], { holeCards: s6Hole, history: s6Start }),
+        feedbackVisual: scene('', [...s6Candidates, candidate('후보 D', 'Ah Qc', { impossibleExample: true, status: '내 A♥와 충돌 · 제외', highlightedCards: cards('Ah') })], { holeCards: s6Hole, history: s6Start, holeHighlights: cards('Ah') }),
+      },
       explain('p4-6-flop', '플랍에서 어떤 패가 됐나요?', '각 후보의 족보와 드로우를 확인해요.', s6(false, s6Start, [candidate('후보 A', 'Kh Qh', { status: '플러시 드로우' }), candidate('후보 B', 'Js 10s', { status: '탑 페어' }), candidate('후보 C', '8c 8d', { status: '셋' })])),
       question(16, '베팅한 상대에게 가능한 패를 모두 고르세요.', ['A · K♥ Q♥', 'B · J♠ 10♠', 'C · 8♣ 8♦'], [0, 1, 2], '드로우·탑 페어·셋 모두 베팅할 수 있어요.', s6(false, s6FlopHistory), s6(false, s6FlopHistory, [candidate('후보 A', 'Kh Qh', { status: '플러시 드로우' }), candidate('후보 B', 'Js 10s', { status: '탑 페어' }), candidate('후보 C', '8c 8d', { status: '셋' })])),
       explain('p4-6-turn', '턴 한 장이 달라졌어요', '하트 한 장이 더 나왔어요. 후보를 다시 살펴봐요.', s6(true, [...s6FlopHistory, '나 콜'])),

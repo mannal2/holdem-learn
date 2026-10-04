@@ -71,6 +71,23 @@ it('자리 그림은 상대 자리라고 표시하고 내 카드와 행동 기�
   expect(screen.getByText('딜러 버튼 · 뒤에 SB·BB가 남아 있어요')).toBeVisible()
 })
 
+it('충돌 문제의 A·B·C는 다음 플랍에도 같은 패이고 D만 제외한다', () => {
+  const view = draw('p4-q15')
+  expect(screen.getAllByRole('group', { name: /^후보 / })).toHaveLength(4)
+  expect(screen.getByRole('group', { name: '후보 A' })).toHaveTextContent('K♥Q♥')
+  expect(screen.getByRole('group', { name: '후보 B' })).toHaveTextContent('J♠10♠')
+  expect(screen.getByRole('group', { name: '후보 C' })).toHaveTextContent('8♣8♦')
+  expect(screen.getByRole('group', { name: '후보 D' })).toHaveTextContent('A♥Q♣')
+  const question = questions.find(step => step.id === 'p4-q15')!
+  expect(evaluateAnswer(question, ['p4-q15-option-0']).isCorrect).toBe(true)
+  expect(question.options.find(option => option.id === 'p4-q15-option-0')?.label).toBe('후보 D · A♥ Q♣')
+  view.unmount()
+  draw('p4-6-flop')
+  expect(screen.getAllByRole('group', { name: /^후보 / })).toHaveLength(3)
+  expect(screen.getByRole('group', { name: '후보 B' })).toHaveTextContent('J♠10♠')
+  expect(screen.queryByRole('group', { name: '후보 D' })).not.toBeInTheDocument()
+})
+
 it('후보 제목으로만 안내하고 반복 문구와 후보별 예시 표기를 넣지 않는다', () => {
   draw('p4-1-range')
   expect(screen.getByRole('heading', { name: '가능한 상대 패 예시' })).toBeVisible()
@@ -105,7 +122,7 @@ it('일반 레슨의 정답 위치도 한쪽에만 고정하지 않는다', () =
 })
 
 it('24문제의 정답을 독립 제작 기준과 대조해 채점한다', () => {
-  const expected = [[1], [0], [1], [0], [0], [1], [0], [1, 2], [0, 2], [0], [1], [0], [1], [0], [0], [0, 1, 2], [2], [1], [1], [0], [2], [0, 1], [1], [0]]
+  const expected = [[1], [0], [1], [0], [0], [1], [0], [1, 2], [0, 2], [0], [1], [0], [1], [0], [3], [0, 1, 2], [2], [1], [1], [0], [2], [0, 1], [1], [0]]
   questions.forEach((step, index) => {
     expect(evaluateAnswer(step, expected[index].map(n => step.options[n].id)).isCorrect).toBe(true)
     expect(evaluateAnswer(step, []).isCorrect).toBe(false)
@@ -117,7 +134,7 @@ it('정상 후보의 충돌·잘못된 강조를 검사하고 의도된 불가�
   const visual = step.visual as RangeSceneVisual
   const check = (visual: RangeSceneVisual, explanation = false) => validateCourse({ parts: [], lessons: { test: { id: 'test', title: '', objective: '', steps: [explanation ? { id: 'invalid', type: 'explanation', body: '', visual } : { ...step, visual }] } } })
   expect(check(visual)).toEqual([])
-  expect(check({ ...visual, candidates: visual.candidates.map(c => ({ ...c, impossibleExample: undefined })) })).toContain('Step p4-q15의 확인용 후보가 공개 카드와 충돌합니다.')
+  expect(check({ ...visual, candidates: visual.candidates.map(c => ({ ...c, impossibleExample: undefined })) })).toContain('Step p4-q15의 후보 D가 공개 카드와 충돌합니다.')
   expect(check(visual, true)).toContain('Step invalid의 불가능 후보 예시는 충돌을 찾는 문제에서만 허용합니다.')
   expect(check({ ...visual, boardHighlights: [{ rank: 'K', suit: 'clubs' }] })).toContain('Step p4-q15의 후보 그림 강조가 실제 카드와 다릅니다.')
   expect(check({ ...visual, stage: 'turn' })).toContain('Step p4-q15의 후보 그림 공개 단계와 장수가 다릅니다.')

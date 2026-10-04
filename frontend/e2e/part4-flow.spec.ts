@@ -99,6 +99,33 @@ test('턴 플러시 해설·카드·행동 이력은 재진입해도 같은 화�
   await expect(page.locator('.poker-table__highlight')).toHaveCount(5)
 })
 
+test('충돌 후보 D의 기존 선택을 복원하고 다음 화면은 같은 A·B·C로 이어진다', async ({ page }) => {
+  await toQuestion(page, 'updating-a-range', 'p4-q15')
+  await expect(page.locator('.range-candidate')).toHaveCount(4)
+  await expect(page.getByRole('group', { name: '후보 B', exact: true })).toContainText('J♠10♠')
+  // 구판의 확인용 후보 선택 ID는 D와 같은 카드이므로 그대로 복원해야 합니다.
+  await page.evaluate(() => {
+    const progress = JSON.parse(localStorage.getItem('holdem-learning-progress')!)
+    const point = { ...progress.resumeByPart['part-4'], stepIndex: 1, answered: 1, correct: 1, submittedStepIds: ['p4-q15'], missedStepIds: [], selectedOptionIds: ['p4-q15-option-0'], selectionsByStep: { 1: ['p4-q15-option-0'] } }
+    progress.recent = point
+    progress.resumeByPart['part-4'] = point
+    localStorage.setItem('holdem-learning-progress', JSON.stringify(progress))
+  })
+  await page.reload()
+  await expect(page.getByRole('radio', { name: '후보 D · A♥ Q♣', exact: true })).toBeChecked()
+  await expect(page.getByRole('status')).toContainText('후보 D는 제외하고 A·B·C를 살펴봐요.')
+  await expect(page.getByRole('group', { name: '후보 D', exact: true })).toContainText('내 A♥와 충돌 · 제외')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+  await page.getByRole('button', { name: '다음', exact: true }).click()
+  await expect(page.locator('.range-candidate')).toHaveCount(3)
+  await expect(page.getByRole('group', { name: '후보 B', exact: true })).toContainText('J♠10♠')
+  await expect(page.getByRole('group', { name: '후보 D', exact: true })).toHaveCount(0)
+  await page.getByRole('button', { name: '이전', exact: true }).click()
+  await expect(page.getByRole('radio', { name: '후보 D · A♥ Q♣', exact: true })).toBeChecked()
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('holdem-learning-progress')!).resumeByPart['part-4'])
+  expect(saved.answered).toBe(1)
+})
+
 test('종합 도전 4/6·5/6 경계와 실패 결과의 그림·조건을 확인한다', async ({ page }) => {
   const lesson = part4Lessons['range-challenge']
   for (const correctCount of [4, 5]) {
