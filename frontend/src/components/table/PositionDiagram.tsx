@@ -7,7 +7,7 @@ const groups: { id: PositionGroup; label: string }[] = [
   { id: 'late', label: '후반 포지션' },
 ]
 
-export function PositionDiagram({ activeGroup, detailed = false, foldedBefore = false, activeLabel = '내 자리' }: { activeGroup: PositionGroup; detailed?: boolean; foldedBefore?: boolean; activeLabel?: string }) {
+export function PositionDiagram({ activeGroup, detailed = false, foldedBefore = false, activeLabel = '내 자리', caption }: { activeGroup: PositionGroup; detailed?: boolean; foldedBefore?: boolean; activeLabel?: string; caption?: string }) {
   if (detailed) {
     // 프리플랍 순서입니다. 후반의 버튼 뒤에도 SB·BB가 남습니다.
     const order = ['UTG', 'HJ', 'CO', 'BTN', 'SB', 'BB']
@@ -27,7 +27,7 @@ export function PositionDiagram({ activeGroup, detailed = false, foldedBefore = 
           </div>
         })}
       </div>
-      <p className="rule-caption">{activeGroup === 'early' ? '초반 예시: UTG. 뒤에 5명이 남아 있어요.' : activeGroup === 'middle' ? '중간 예시: HJ. 앞선 행동을 봤지만 뒤에도 사람이 남아 있어요.' : '후반 예시: 딜러 버튼. 앞선 선택을 보고 결정하지만 뒤에 SB·BB가 남아 있어요.'}</p>
+      <p className="rule-caption">{caption ?? (activeGroup === 'early' ? '초반 예시: UTG. 뒤에 5명이 남아 있어요.' : activeGroup === 'middle' ? '중간 예시: HJ. 앞선 행동을 봤지만 뒤에도 사람이 남아 있어요.' : '후반 예시: 딜러 버튼. 앞선 선택을 보고 결정하지만 뒤에 SB·BB가 남아 있어요.')}</p>
     </div>
   }
   return (

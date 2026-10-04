@@ -28,7 +28,6 @@ export interface RangeSceneVisual {
   boardHighlights?: PlayingCard[]
   holeHighlights?: PlayingCard[]
   markLatestCard?: boolean
-  note?: string
 }
 
 export type RuleVisual =

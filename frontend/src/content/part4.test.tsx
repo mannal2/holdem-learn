@@ -44,6 +44,15 @@ it('자리 그림은 상대 자리라고 표시하고 내 카드와 행동 기�
   expect(screen.getByRole('group', { name: '딜러 버튼 · 상대 자리' })).toBeInTheDocument()
   expect(screen.getByRole('group', { name: '내 개인 카드' }).querySelectorAll('.playing-card')).toHaveLength(2)
   expect(screen.getByRole('group', { name: '지금까지의 행동' })).toHaveTextContent('나 BB 콜')
+  expect(screen.getByText('딜러 버튼 · 뒤에 SB·BB가 남아 있어요')).toBeVisible()
+})
+
+it('후보 제목으로만 안내하고 반복 문구와 후보별 예시 표기를 넣지 않는다', () => {
+  draw('p4-1-range')
+  expect(screen.getByRole('heading', { name: '가능한 상대 패 예시' })).toBeVisible()
+  expect(screen.getByRole('heading', { name: 'AK' })).toBeVisible()
+  expect(screen.queryByText('각각 따로 가정한 패예요.')).not.toBeInTheDocument()
+  expect(screen.queryByText('가능한 패의 일부만 보여줘요.')).not.toBeInTheDocument()
 })
 
 it('팟 대비 크기는 제출 전 금액만, 제출 후 정확한 두 비율을 표시한다', () => {

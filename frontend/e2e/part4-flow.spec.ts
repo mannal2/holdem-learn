@@ -114,7 +114,7 @@ test('종합 도전 4/6·5/6 경계와 실패 결과의 그림·조건을 확인
     await expect(page.getByText(`${correctCount}/6 정답 · ${Math.round(correctCount / 6 * 100)}%`, { exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: '새 카드로 연습하기' })).toHaveCount(0)
     if (correctCount === 4) {
-      await expect(page.getByText('확인한 여러 판에서 강한 패일 때 큰 베팅을 자주 한 상대', { exact: true })).toBeVisible()
+      await expect(page.getByText('앞선 여러 판에서 강한 패로 큰 베팅을 자주 했어요.', { exact: true })).toBeVisible()
       await expect(page.locator('.poker-table__board .playing-card')).toHaveCount(4)
       await expect(page.locator('.poker-table__highlight')).toHaveCount(5)
     } else await expect(page.getByRole('link', { name: 'Part 결과 보기' })).toBeVisible()
