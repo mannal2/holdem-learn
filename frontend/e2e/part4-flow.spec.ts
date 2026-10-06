@@ -125,3 +125,23 @@ test('종합 도전 9/12·10/12 경계와 오답의 카드·행동·조건을 �
     await expect(row.getByText(correctCount === 9 ? '재도전 필요' : '완료', { exact: true })).toBeVisible()
   }
 })
+
+test('통합 전 제출한 변형 문제를 같은 답·해설로 복원하고 새 위치를 저장한다', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => {
+    const point = { partId: 'part-4', lessonId: 'range-variations', stepIndex: 2, answered: 1, correct: 1,
+      submittedStepIds: ['p4-seq-q16'], selectedOptionIds: ['p4-seq-q16-option-1'], selectionsByStep: { 2: ['p4-seq-q16-option-1'] } }
+    localStorage.setItem('holdem-learning-progress', JSON.stringify({ version: 1, recent: point, resumeByPart: { 'part-4': point }, completedLessonIds: [], completedPartIds: [], lessonResults: {} }))
+  })
+  await page.goto('/learn/part-4/range-variations')
+  await expect(page.getByRole('status')).toContainText('정답이에요')
+  await expect(page.getByRole('radio', { name: 'A·B를 더 유력하게 보고 C·D의 블러프 가능성은 낮게 본다', exact: true })).toBeChecked()
+  await expect(page.getByText('2/6', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '다음', exact: true }).click()
+  await page.reload()
+  await expect(page.getByRole('group', { name: '턴·리버에 체크한 이유로 가능한 설명을 모두 고르세요.', exact: true })).toBeVisible()
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('holdem-learning-progress')!).resumeByPart['part-4'])
+  expect(saved.stepIndex).toBe(2)
+  expect(saved.lessonRevision).toBe(1)
+  expect(saved.submittedStepIds).toEqual(['p4-seq-q16'])
+})

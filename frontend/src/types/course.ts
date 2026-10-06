@@ -129,6 +129,7 @@ export type LearningStep =
 
 export interface LessonDefinition {
   id: string
+  progressRevision?: number
   title: string
   objective: string
   steps: LearningStep[]

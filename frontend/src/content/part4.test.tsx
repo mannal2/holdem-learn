@@ -13,10 +13,10 @@ const question = (n: number) => questions.find(step => step.id === `p4-seq-q${St
 const draw = (n: number, submitted = false) => render(<LearningStepRenderer step={question(n)} selectedOptionIds={[]} feedbackVisible={submitted} onSelect={() => {}} />)
 const scene = (n: number) => question(n)?.visual as RangeSceneVisual
 
-it('승인한 7레슨·64화면·31문제를 유효한 카탈로그로 제공한다', () => {
+it('승인한 7레슨·48화면·31문제를 유효한 카탈로그로 제공한다', () => {
   expect(validateCourse(courseCatalog)).toEqual([])
-  expect(part4.lessonIds.map(id => part4Lessons[id].steps.length)).toEqual([8, 8, 8, 8, 8, 10, 14])
-  expect(steps).toHaveLength(64)
+  expect(part4.lessonIds.map(id => part4Lessons[id].steps.length)).toEqual([8, 5, 7, 4, 4, 6, 14])
+  expect(steps).toHaveLength(48)
   expect(questions).toHaveLength(31)
 })
 
@@ -112,4 +112,17 @@ it('후보 충돌·잘못된 강조·금액·공개 단계 오류를 계속 거�
   expect(check({ ...original, boardHighlights: [{ rank: '2', suit: 'clubs' }] })).not.toEqual([])
   expect(check({ ...original, bet: { pot: 0, bet: 52 } })).not.toEqual([])
   expect(check({ ...original, stage: 'flop' })).not.toEqual([])
+})
+
+it('개념 설명은 판단 방법만 가르치고 별도 카드 예시는 원래 후보 문제 뒤에 나온다', () => {
+  const flop = part4Lessons['range-flop'].steps
+  expect(flop.findIndex(step => step.id === 'p4-seq-2-both')).toBeGreaterThan(flop.findIndex(step => step.id === 'p4-seq-q06'))
+  for (const id of ['p4-seq-3-size', 'p4-seq-3-reasons', 'p4-seq-3-uncertainty']) {
+    const step = steps.find(step => step.id === id)!
+    expect(step.type).toBe('explanation')
+    const view = render(<LearningStepRenderer step={step} selectedOptionIds={[]} feedbackVisible={false} onSelect={() => {}} />)
+    expect(view.container.querySelector('.range-candidate')).toBeNull()
+    expect(view.container).not.toHaveTextContent(/13칩|80칩|A·B|C는|D는/)
+    cleanup()
+  }
 })

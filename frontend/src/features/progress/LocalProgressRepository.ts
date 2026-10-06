@@ -2,6 +2,7 @@ import type { LearningProgress, ResumePoint } from '../../types/progress'
 import { getLesson, getPart } from '../../content/catalog'
 import { createEmptyProgress } from './createEmptyProgress'
 import { reconcileLessonProgress } from './reconcileLessonProgress'
+import { migratePart4StepOrder } from './migratePart4StepOrder'
 import type { ProgressLoadResult, ProgressRepository } from './ProgressRepository'
 import { legacyPart4LessonIds } from '../../content/legacyPart4'
 
@@ -31,7 +32,7 @@ function isResumePoint(value: unknown): value is ResumePoint {
   if (!record(value) || typeof value.partId !== 'string' || typeof value.lessonId !== 'string' || !Number.isInteger(value.stepIndex)) return false
   const part = getPart(value.partId); const lesson = getLesson(value.lessonId)
   if (!part || !lesson || !part.lessonIds.includes(lesson.id) || (value.stepIndex as number) < 0 || (value.stepIndex as number) >= lesson.steps.length) return false
-  return (value.answered === undefined || finiteNonNegative(value.answered)) && (value.correct === undefined || finiteNonNegative(value.correct)) && (value.submittedStepIds === undefined || strings(value.submittedStepIds)) && (value.missedStepIds === undefined || strings(value.missedStepIds)) && (value.selectedOptionIds === undefined || strings(value.selectedOptionIds)) && (value.selectionsByStep === undefined || (record(value.selectionsByStep) && Object.values(value.selectionsByStep).every(strings)))
+  return (value.lessonRevision === undefined || (Number.isInteger(value.lessonRevision) && (value.lessonRevision as number) > 0)) && (value.answered === undefined || finiteNonNegative(value.answered)) && (value.correct === undefined || finiteNonNegative(value.correct)) && (value.submittedStepIds === undefined || strings(value.submittedStepIds)) && (value.missedStepIds === undefined || strings(value.missedStepIds)) && (value.selectedOptionIds === undefined || strings(value.selectedOptionIds)) && (value.selectionsByStep === undefined || (record(value.selectionsByStep) && Object.values(value.selectionsByStep).every(strings)))
 }
 
 function isProgress(value: unknown): value is LearningProgress {
@@ -50,7 +51,7 @@ export class LocalProgressRepository implements ProgressRepository {
       const storage = this.storage(); const raw = storage.getItem(KEY)
       if (!raw) return { progress: createEmptyProgress(), recovered: false }
       const parsed: unknown = JSON.parse(raw)
-      const migrated = removeLegacyPart4(parsed)
+      const migrated = migratePart4StepOrder(removeLegacyPart4(parsed))
       if (!isProgress(migrated)) throw new Error('invalid progress')
       const progress = reconcileLessonProgress(migrated)
       if (migrated !== parsed) {

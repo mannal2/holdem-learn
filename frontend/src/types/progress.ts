@@ -2,6 +2,7 @@ export interface ResumePoint {
   partId: string
   lessonId: string
   stepIndex: number
+  lessonRevision?: number
   answered?: number
   correct?: number
   submittedStepIds?: string[]

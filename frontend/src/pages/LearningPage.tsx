@@ -21,7 +21,7 @@ export function LearningPage() {
     // 브라우저 주소 교체가 끝나기 전 다시 렌더돼도 같은 재시작을 반복하지 않습니다.
     consumedRestart.current = location.key
     // 재시작은 한 번만 적용합니다. 주소에 남겨 두면 새로고침마다 저장된 해설을 무시합니다.
-    void confirmStep({ partId: part.id, lessonId: lesson.id, stepIndex: 0, answered: 0, correct: 0, submittedStepIds: [], missedStepIds: [], selectedOptionIds: [], selectionsByStep: {} })
+    void confirmStep({ partId: part.id, lessonId: lesson.id, ...(lesson.progressRevision ? { lessonRevision: lesson.progressRevision } : {}), stepIndex: 0, answered: 0, correct: 0, submittedStepIds: [], missedStepIds: [], selectedOptionIds: [], selectionsByStep: {} })
     const nextParams = new URLSearchParams(searchParams)
     nextParams.delete('restart')
     setSearchParams(nextParams, { replace: true })
@@ -45,7 +45,7 @@ export function LearningPage() {
         lesson={lesson}
         initialStepIndex={initialStepIndex}
         initialProgress={saved?.lessonId === lesson.id ? saved : undefined}
-        onProgressChange={(attempt) => void confirmStep({ partId: part.id, lessonId: lesson.id, ...attempt })}
+        onProgressChange={(attempt) => void confirmStep({ partId: part.id, lessonId: lesson.id, ...(lesson.progressRevision ? { lessonRevision: lesson.progressRevision } : {}), ...attempt })}
         onComplete={async ({ answered, correct, missedStepIds }) => {
           const passedPart = Boolean(lesson.passingPercentage) && hasPassed(correct, answered, lesson.passingPercentage ?? 100)
           await completeLesson({ lessonId: lesson.id, partId: part.id, correct, answered, missedStepIds, passedPart })

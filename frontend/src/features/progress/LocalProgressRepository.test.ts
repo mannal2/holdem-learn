@@ -17,8 +17,8 @@ it.each([
   storage.setItem('holdem-learning-progress', JSON.stringify(saved))
   const { progress, recovered } = await new LocalProgressRepository(storage).load()
   expect(recovered).toBe(false)
-  expect(progress.recent).toEqual({ ...point, answered: 1, correct: 1, submittedStepIds: [otherId],
-    selectedOptionIds: [], selectionsByStep: { [otherIndex]: [`${otherId}-option-0`] }, missedStepIds: [] })
+  expect(progress.recent).toEqual({ ...point, ...(lessonId === 'range-flop' ? { stepIndex: oldId === 'p4-seq-q04' ? 0 : 1, lessonRevision: 1 } : {}), answered: 1, correct: 1, submittedStepIds: [otherId],
+    selectedOptionIds: [], selectionsByStep: { [lessonId === 'range-flop' ? 2 : otherIndex]: [`${otherId}-option-0`] }, missedStepIds: [] })
   expect(progress.resumeByPart['part-4']).toEqual(progress.recent)
   expect(progress.resumeByPart['part-0']).toEqual(saved.resumeByPart['part-0'])
   expect(progress.completedLessonIds).toEqual(saved.completedLessonIds)
@@ -55,4 +55,58 @@ it('null 객체와 범위를 벗어난 재개 위치는 새 진도로 복구한�
 it('브라우저 저장소 읽기가 거부되어도 새 진도로 복구한다', async () => {
   const storage = createMemoryStorage(); storage.getItem = () => { throw new DOMException('blocked', 'SecurityError') }
   await expect(new LocalProgressRepository(storage).load()).resolves.toEqual({ progress: createEmptyProgress(), recovered: true })
+})
+
+it('통합 전 변형 레슨의 설명·문제·요약 위치와 선택을 새 순서로 한 번만 옮긴다', async () => {
+  for (const [oldIndex, newIndex] of [[0, 0], [1, 1], [2, 1], [3, 2], [4, 2], [5, 3], [6, 3], [7, 4], [8, 4], [9, 5]]) {
+    const storage = createMemoryStorage()
+    const point = { partId: 'part-4', lessonId: 'range-variations', stepIndex: oldIndex,
+      answered: 2, correct: 1, submittedStepIds: ['p4-seq-q16', 'p4-seq-q17'], missedStepIds: ['p4-seq-q17'],
+      selectionsByStep: { 2: ['p4-seq-q16-option-1'], 4: ['p4-seq-q17-option-0'] } }
+    const saved = { ...progressFixture, recent: point, resumeByPart: { ...progressFixture.resumeByPart, 'part-4': point } }
+    storage.setItem('holdem-learning-progress', JSON.stringify(saved))
+    const repository = new LocalProgressRepository(storage)
+    const result = await repository.load()
+    expect(result.recovered).toBe(false)
+    expect(result.progress.recent).toEqual(expect.objectContaining({ stepIndex: newIndex, lessonRevision: 1,
+      answered: 2, correct: 1, submittedStepIds: point.submittedStepIds, missedStepIds: point.missedStepIds,
+      selectionsByStep: { 1: ['p4-seq-q16-option-1'], 2: ['p4-seq-q17-option-0'] } }))
+    expect(result.progress.resumeByPart['part-4']).toEqual(result.progress.recent)
+    expect(result.progress.resumeByPart['part-0']).toEqual(progressFixture.resumeByPart['part-0'])
+    expect(result.progress.completedLessonIds).toEqual(saved.completedLessonIds)
+    expect(result.progress.lessonResults).toEqual(saved.lessonResults)
+    expect((await repository.load()).progress).toEqual(result.progress)
+  }
+})
+
+it.each([
+  ['range-flop', [0, 0, 0, 1, 1, 3, 2, 4], [[2, 0, 'p4-seq-q04-v2'], [4, 1, 'p4-seq-q05-v2'], [6, 2, 'p4-seq-q06']]],
+  ['range-flop-actions', [0, 0, 1, 2, 3, 4, 5, 6], [[2, 1, 'p4-seq-q07'], [4, 3, 'p4-seq-q08'], [6, 5, 'p4-seq-q09']]],
+  ['range-turn', [0, 0, 1, 1, 2, 2, 3, 3], [[1, 0, 'p4-seq-q10'], [3, 1, 'p4-seq-q11'], [5, 2, 'p4-seq-q12']]],
+  ['range-river', [0, 0, 1, 1, 2, 2, 3, 3], [[1, 0, 'p4-seq-q13'], [3, 1, 'p4-seq-q14'], [5, 2, 'p4-seq-q15']]],
+] as const)('%s의 모든 구판 위치와 제출 기록을 내용에 맞춰 복원한다', async (lessonId, mapping, questions) => {
+  for (const [oldIndex, newIndex] of mapping.entries()) {
+    const storage = createMemoryStorage()
+    const ids = questions.map(([, , id]) => id)
+    const selections = Object.fromEntries(questions.map(([old, , id]) => [old, [`${id}-option-0`]]))
+    const point = { partId: 'part-4', lessonId, stepIndex: oldIndex, answered: 3, correct: 3, submittedStepIds: ids, selectionsByStep: selections }
+    storage.setItem('holdem-learning-progress', JSON.stringify({ ...progressFixture, recent: point, resumeByPart: { ...progressFixture.resumeByPart, 'part-4': point } }))
+    const result = await new LocalProgressRepository(storage).load()
+    expect(result.recovered).toBe(false)
+    expect(result.progress.recent).toEqual(expect.objectContaining({ stepIndex: newIndex, answered: 3, correct: 3, submittedStepIds: ids,
+      selectionsByStep: Object.fromEntries(questions.map(([, current, id]) => [current, [`${id}-option-0`]])) }))
+  }
+})
+
+it('화면 순서 변환의 저장이 실패해도 기존 원본을 지우지 않는다', async () => {
+  const storage = createMemoryStorage()
+  const point = { partId: 'part-4', lessonId: 'range-variations', stepIndex: 9 }
+  const raw = JSON.stringify({ ...progressFixture, recent: point, resumeByPart: { 'part-4': point } })
+  storage.setItem('holdem-learning-progress', raw)
+  storage.setItem = () => { throw new Error('blocked') }
+  const result = await new LocalProgressRepository(storage).load()
+  expect(result.saveFailed).toBe(true)
+  expect(result.recovered).toBe(false)
+  expect(result.progress.recent?.stepIndex).toBe(5)
+  expect(storage.getItem('holdem-learning-progress')).toBe(raw)
 })
