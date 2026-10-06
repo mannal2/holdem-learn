@@ -60,7 +60,7 @@ it('종합은 새 핸드 세 개를 각각 프리플랍부터 리버까지 연�
     expect(scenes[1].board).not.toEqual(scene(4).board)
   }
   expect(scene(30).bet).toBeUndefined()
-  expect(question(30).conditions?.join(' ')).toContain('버튼 12칩 베팅 · 상대 BB 총 36칩 레이즈')
+  expect(question(30).conditions?.join(' ')).toContain('버튼 12칩 베팅 · 상대 BB 레이즈 · 이번 베팅 총액 36칩')
   expect(scene(31).bet).toEqual({ pot: 101, bet: 60 })
   expect(scene(31).history?.join(' ')).toContain('상대 BB')
 })
@@ -79,7 +79,7 @@ it('턴 해설은 낮아짐·유지의 근거와 같은 팟을 보여준다', ()
   expect(screen.getByRole('group', { name: '후보 D' })).toHaveTextContent('가능성 ↓')
   expect(screen.getByRole('group', { name: '후보 A' })).toHaveTextContent('판단 유지')
   expect(screen.getByRole('group', { name: '이번 베팅' })).toHaveTextContent('29칩')
-  expect(question(11).conditions?.join(' ')).toContain('두 번')
+  expect(question(11).conditions?.join(' ')).toContain('플랍·턴에 연속 베팅')
 })
 
 it('리버 완성은 네 후보를 유지하며 플러시 다섯 장을 강조한다', () => {
