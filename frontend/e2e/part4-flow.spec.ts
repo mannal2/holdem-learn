@@ -44,7 +44,7 @@ for (const lessonId of part4.lessonIds) {
         await expect(page.locator('.poker-table__board .playing-card')).toHaveCount(visual.board.length)
         await expect(page.locator('.poker-table__hand .playing-card')).toHaveCount(0)
       }
-      if (['p4-seq-q11', 'p4-seq-q13', 'p4-seq-q14', 'p4-seq-q30', 'p4-seq-1-candidates', 'p4-seq-6-c'].includes(step.id)) await page.screenshot({ path: testInfo.outputPath(`${step.id}.png`), fullPage: true })
+      if (['p4-seq-q11', 'p4-seq-q13', 'p4-seq-q14', 'p4-seq-q30', 'p4-seq-1-position', 'p4-seq-1-candidates', 'p4-seq-6-c'].includes(step.id)) await page.screenshot({ path: testInfo.outputPath(`${step.id}.png`), fullPage: true })
       await page.getByRole('button', { name: step.type === 'summary' ? '완료' : '다음', exact: true }).click()
     }
     await expect(page.getByRole('link', { name: '← 레슨 목록', exact: true })).toHaveAttribute('href', '/parts/part-4')

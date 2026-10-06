@@ -95,7 +95,10 @@ export const part4Lessons: Record<string, LessonDefinition> = {
     id: 'range-preflop', title: '프리플랍의 출발 후보', objective: '상대의 자리와 첫 행동을 보고 가능한 패를 생각해요.',
     steps: [
       explain('1-start', '이 자리에서 어떤 패로 참가했을까요?', '상대가 가질 수 있는 여러 패의 범위를 레인지라고 해요. 새 카드와 행동을 보며 후보를 다시 판단해 볼게요.', { kind: 'position-scenes', rows: [{ label: '이번 판에서 상대는 딜러 버튼 자리예요', activeGroup: 'late', foldedBefore: true }], history: [setup, ...start] }),
-      explain('1-position', '같은 상대라도 자리에 따라 달라요', '초반 자리에서는 뒤에 사람이 많이 남아 있어 좋은 패를 골라 참가해요. 반면 버튼에서 앞사람들이 모두 폴드했다면, 조금 덜 좋은 패로도 참가할 수 있어요. 그래서 버튼에서 레이즈한 상대에게는 더 다양한 패가 있을 수 있어요.', positions),
+      explain('1-position', '같은 상대라도 자리에 따라 달라요', '같은 레이즈라도, 상대 자리에 따라 가능한 패의 범위를 다르게 생각해야 해요.', facts([
+        { label: '초반 자리', value: '좋은 패 위주로 참가', detail: '뒤에 행동할 사람이 많이 남아 있어요.' },
+        { label: '버튼 자리', value: '조금 덜 좋은 패로도 참가', detail: '앞사람들이 모두 폴드했다면 더 다양한 패로 참가할 수 있어요.' },
+      ])),
       question(1, positions, undefined, [opening, '앞사람 모두 폴드 후 첫 레이즈 · 같은 상대, 같은 보유 칩']),
       explain('1-reraise', '먼저 올렸나요, 다시 올렸나요?', '아무도 레이즈하지 않았을 때 처음 올리면 첫 레이즈예요. 앞사람의 레이즈를 다시 올리면 재레이즈예요.', { kind: 'action-lines', rows: [{ label: '이번 판 · 첫 레이즈', actions: start }, { label: '별도 비교 · 재레이즈', actions: ['UTG 총 6칩 레이즈 → HJ·CO 폴드', '버튼 총 20칩으로 재레이즈'] }] }),
       question(2, lines('별도 비교 · 재레이즈', ['UTG 총 6칩 레이즈 → HJ·CO 폴드', '버튼 총 20칩으로 재레이즈']), undefined, [opening]),
