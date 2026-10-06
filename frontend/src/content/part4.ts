@@ -99,7 +99,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
         { label: '버튼 자리', value: '조금 덜 좋은 패로도 참가', detail: '앞사람들이 모두 폴드했다면 더 다양한 패로 참가할 수 있어요.' },
       ])),
       question(1, undefined, undefined, [opening, '같은 상대가 같은 보유 칩으로 초반 자리와 버튼에서 각각 첫 레이즈한 상황입니다.', '두 상황 모두 앞사람들은 전부 폴드했습니다.']),
-      explain('1-reraise', '먼저 올렸나요, 다시 올렸나요?', '아무도 레이즈하지 않았을 때 처음 올리면 첫 레이즈예요. 앞사람의 레이즈를 다시 올리면 재레이즈예요.', { kind: 'action-lines', rows: [{ label: '이번 판 · 첫 레이즈', actions: start }, { label: '별도 비교 · 재레이즈', actions: ['UTG 총 6칩 레이즈 → HJ·CO 폴드', '버튼 총 20칩으로 재레이즈'] }] }),
+      explain('1-reraise', '먼저 올렸나요, 다시 올렸나요?', '아무도 레이즈하지 않았을 때 처음 올리면 첫 레이즈예요. 앞사람의 레이즈를 다시 올리면 재레이즈예요.', { kind: 'action-lines', rows: [{ label: '첫 레이즈', actions: ['앞사람 모두 폴드 → 버튼이 처음 레이즈'] }, { label: '재레이즈', actions: ['앞사람이 레이즈 → 버튼이 다시 레이즈'] }] }),
       question(2, lines('별도 비교 · 재레이즈', ['UTG 총 6칩 레이즈 → HJ·CO 폴드', '버튼 총 20칩으로 재레이즈']), undefined, [opening]),
       question(3, scene('', [], start), undefined, [opening]),
       explain('1-candidates', '네 후보를 함께 따라가 볼게요', '가능한 패 중 네 가지 예시예요. 다른 패도 가능하며, 네 후보의 가능성이 같다는 뜻은 아니에요.', H('', start, ['페어', '높은 카드', '같은 무늬 높은 카드', '서로 다른 무늬 높은 카드'])),
