@@ -10,7 +10,7 @@ const summary = (id: string, body: string, bullets: string[], visual?: RuleVisua
 
 const setup = '6명 · 각 200칩 · 스몰 블라인드(SB) 1칩 / 빅 블라인드(BB) 2칩'
 const opening = '가정: 이 상대는 초반에는 좋은 패로 참가하지만, 앞사람들이 모두 폴드한 버튼에서는 조금 덜 좋은 패로도 참가해요.'
-const repeat = '가정: 이 상대는 페어도 뚜렷한 드로우도 없으면 플랍·턴에 연속 베팅을 잘 하지 않아요.'
+const repeat = '가정: 이 상대는 페어도 카드 한 장으로 완성할 플러시·스트레이트 드로우도 없으면 플랍·턴에 연속 베팅을 잘 하지 않아요.'
 const riverRead = '가정: 이 상대는 플러시가 가능한 공용 카드에서 원 페어로 크게 베팅하는 일이 드물어요. 페어도 없고 드로우도 완성되지 않은 패로 세 번 연속 블러프하는 일도 드물어요.'
 const lateRaise = '가정: 이 상대는 원 페어로 턴에 크게 레이즈하는 일이 드물어요. 블러프 레이즈는 가능해요.'
 const noTripleBluff = '가정: 이 상대는 페어도 없고 드로우도 완성되지 않은 패로 세 번 연속 블러프하는 일이 드물어요.'
@@ -25,7 +25,7 @@ const h = ['8c 8d', 'Ah Kd', 'As Js', 'Ac Jd']
 const hFlop = 'Ks 8s 3d'
 const hTurn = `${hFlop} 2h`
 const hRiver = `${hTurn} Qs`
-const hStates = ['셋 · 8 세 장', '탑 페어 · K 두 장', '페어 없음 · 스페이드 4장, 플러시 드로우', '페어 없음 · 뚜렷한 드로우 없음']
+const hStates = ['셋 · 8 세 장', '탑 페어 · K 두 장', '페어 없음 · 스페이드 4장, 플러시 드로우', '페어 없음 · 카드 한 장으로 완성할 플러시·스트레이트 드로우 없음']
 const hTurnJudgment = ['셋\n판단 유지 · 셋으로 칩을 더 얻으려는 베팅 가능', '탑 페어\n판단 유지 · 원 페어로 계속 베팅 가능', '플러시 드로우\n판단 유지 · 폴드를 노리며 플러시 완성도 기대', '페어 없음\n가능성 ↓ · 이 패로 두 번 베팅하는 일은 드묾']
 const hRiverJudgment = ['셋\n판단 유지 · 셋으로 큰 베팅 가능', '탑 페어\n가능성 ↓ · 원 페어로 크게 베팅하는 일은 드묾', '플러시\n가능성 ↑ · 플러시 완성 뒤 큰 베팅', '페어 없음\n가능성 ↓ · 페어 없이 세 번 블러프는 드묾']
 
@@ -123,9 +123,9 @@ export const part4Lessons: Record<string, LessonDefinition> = {
     id: 'range-flop-actions', title: '플랍 행동과 후보의 가능성', objective: '베팅의 이유와 팟에 비해 얼마나 큰 베팅인지 살펴봐요.',
     steps: [
       explain('3-bet', '상대가 처음으로 베팅했어요', 'BB가 체크하자 상대 버튼이 8칩을 베팅했어요. 각 후보라면 왜 베팅할까요?', H(hFlop, flopBet, hStates, { pot: 13, bet: 8 })),
-      explain('3-size', '가운데 모인 칩과 비교해요', '팟은 베팅 전 가운데 모인 칩이에요. 13칩 팟의 8칩은 절반보다 크지만, 80칩 팟의 8칩은 10분의 1이에요.', { kind: 'bet-comparison', rows: [{ label: '이번 판', pot: 13, bet: 8 }, { label: '별도 금액 비교', pot: 80, bet: 8 }], showRatio: true }),
-      question(7, { kind: 'bet-comparison', rows: [{ label: '이번 판', pot: 13, bet: 8 }, { label: '별도 금액 비교', pot: 80, bet: 8 }] }, { kind: 'bet-comparison', rows: [{ label: '이번 판', pot: 13, bet: 8 }, { label: '별도 금액 비교', pot: 80, bet: 8 }], showRatio: true }),
-      explain('3-reasons', '각 후보는 왜 베팅할까요?', 'A·B라면 더 약한 패에게 콜을 받아 칩을 더 얻으려는 베팅일 수 있어요. C는 폴드를 노리며, 콜을 받아도 다음 스페이드로 플러시가 될 기회가 있어요. D는 페어 없이 폴드를 노리는 블러프일 수 있어요.', H(hFlop, flopBet, hStates, { pot: 13, bet: 8 })),
+      explain('3-size', '가운데 모인 칩과 비교해요', '팟은 베팅 전 가운데 모인 칩이에요. 13칩 팟의 8칩은 절반보다 크지만, 80칩 팟의 8칩은 10분의 1이에요.', { kind: 'bet-comparison', rows: [{ label: '이번 판', pot: 13, bet: 8 }, { label: '팟이 80칩인 상황', pot: 80, bet: 8 }], showRatio: true }),
+      question(7, { kind: 'bet-comparison', rows: [{ label: '이번 판', pot: 13, bet: 8 }, { label: '팟이 80칩인 상황', pot: 80, bet: 8 }] }, { kind: 'bet-comparison', rows: [{ label: '이번 판', pot: 13, bet: 8 }, { label: '팟이 80칩인 상황', pot: 80, bet: 8 }], showRatio: true }),
+      explain('3-reasons', '각 후보는 왜 베팅할까요?', 'A·B라면 자기 패보다 낮은 족보의 패로 콜하게 해 칩을 더 얻으려는 베팅일 수 있어요. C는 폴드를 노리며, 콜을 받아도 다음 스페이드로 플러시가 될 기회가 있어요. D는 페어 없이 폴드를 노리는 블러프일 수 있어요.', H(hFlop, flopBet, hStates, { pot: 13, bet: 8 })),
       question(8, H(hFlop, flopBet, [], { pot: 13, bet: 8 }), H(hFlop, flopBet, hStates, { pot: 13, bet: 8 })),
       explain('3-uncertainty', '가장 강한 패가 가장 유력한 패일까요?', '가장 강한 패라고 가장 유력한 것은 아니에요. 상대가 어떤 패로 참가하고 베팅하는지도 알아야 해요.', facts([{ label: '판단 방법', value: '기존 후보 → 새 정보 → 판단 변화 → 이유' }, { label: '아직 모르는 정보', value: '어느 후보가 더 유력한지는 아직 알 수 없어요.' }])),
       question(9, H(hFlop, flopBet, [], { pot: 13, bet: 8 }), H(hFlop, flopBet, hStates, { pot: 13, bet: 8 }), [unknown]),
@@ -140,7 +140,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
       explain('4-bet', '상대가 두 번째로 베팅했어요', `${repeat} 상대가 턴에서도 베팅했어요. 위의 가정에 따라 어떤 후보의 가능성이 달라질지 생각해 보세요.`, H(hTurn, turnBet, [], { pot: 29, bet: 20 })),
       question(11, H(hTurn, turnBet, [], { pot: 29, bet: 20 }), H(hTurn, turnBet, hTurnJudgment, { pot: 29, bet: 20 }), [repeat]),
       explain('4-change', '무엇이 달라졌나요?', 'D로 두 번 베팅하는 일은 드물다고 정했으므로 D의 가능성을 낮게 봐요. A·B·C는 이전 판단을 유지하며, 세 후보의 가능성이 같다는 뜻은 아니에요.', H(hTurn, turnBet, hTurnJudgment, { pot: 29, bet: 20 })),
-      question(12, H(hTurn, turnBet, [], { pot: 29, bet: 20 }), undefined, ['같은 카드와 베팅이라도, 약한 패로 연속 베팅하는지는 모르는 상대라면?']),
+      question(12, H(hTurn, turnBet, [], { pot: 29, bet: 20 }), undefined, ['같은 카드와 베팅이라도, 페어도 드로우도 없는 패로 연속 베팅하는지 모르는 상대라면?']),
       explain('4-compare', '카드만 보고 바꾼 판단이 아니에요', 'D의 가능성을 낮춘 이유는 턴 카드가 아니라 두 번의 베팅과 상대의 습관이에요. BB가 20칩 콜해 팟은 69칩이 됐어요.', H(hTurn, turnCall, hTurnJudgment)),
       summary('4-summary', '새 카드 → 후보 상태 → 새 행동 → 판단 변화 순서로 봐요.', ['가능성 ↑: 이전보다 더 유력함', '가능성 ↓: 이전보다 덜 유력함', '판단 유지: 이전 판단을 바꿀 근거가 없음']),
     ],
@@ -162,11 +162,11 @@ export const part4Lessons: Record<string, LessonDefinition> = {
     id: 'range-variations', title: '다른 흐름에 적용하기', objective: '세 가지 다른 전개에서 같은 사고 과정을 적용해요.',
     steps: [
       explain('6-start', '다른 카드와 행동이 나왔다면?', '같은 후보와 플랍에서, 이후 카드와 행동만 바꾼 별도 예시예요.', H(hFlop, start)),
-      explain('6-a', '변형 A · 계속 공격했지만 드로우는 실패했어요', `${noTripleBluff} 이번에는 리버 6♦라서 C의 플러시가 완성되지 않았어요.`, H(variationA, riverBet, ['셋', '탑 페어', '페어 없음 · 플러시 드로우 실패', '페어 없음'], { pot: 69, bet: 52 })),
-      question(16, H(variationA, riverBet, [], { pot: 69, bet: 52 }), H(variationA, riverBet, ['셋\n판단 유지 · 완성된 패로 베팅 가능', '탑 페어\n판단 유지 · 완성된 패로 베팅 가능', '플러시 완성 실패\n가능성 ↓ · 완성 실패 뒤 세 번 블러프는 드묾', '페어 없음\n가능성 ↓ · 페어 없이 세 번 블러프는 드묾'], { pot: 69, bet: 52 }), ['변형 A · 앞서 본 판과 다른 리버', noTripleBluff]),
+      explain('6-a', '변형 A · 계속 베팅했지만 드로우는 실패했어요', `${noTripleBluff} 이번에는 리버 6♦라서 C의 플러시가 완성되지 않았어요.`, H(variationA, riverBet, ['셋', '탑 페어', '페어 없음 · 플러시 드로우 실패', '페어 없음'], { pot: 69, bet: 52 })),
+      question(16, H(variationA, riverBet, [], { pot: 69, bet: 52 }), H(variationA, riverBet, ['셋\n판단 유지 · 셋으로 베팅 가능', '탑 페어\n판단 유지 · 탑 페어로 베팅 가능', '플러시 완성 실패\n가능성 ↓ · 드로우로 계속 베팅하다 리버에서도 블러프하는 일은 드묾', '페어 없음\n가능성 ↓ · 페어 없이 세 번 블러프는 드묾'], { pot: 69, bet: 52 }), ['변형 A · 앞서 본 판과 다른 리버', noTripleBluff]),
       explain('6-b', '체크했다는 이유만으로 강한 패를 지우지 않아요', '변형 B에서는 턴과 리버에 체크했어요. 원 페어로 팟을 키우지 않거나 드로우로 추가 베팅 없이 다음 카드를 보려 했을 수 있어요. 셋도 체크할 수 있어요.', H(variationA, variationBHistory, ['셋도 체크할 수 있음', '원 페어로 팟을 키우지 않으려 체크', '플러시 완성 실패 · 추가 베팅을 피했을 수 있음', '블러프를 멈췄을 수도 있음'])),
       question(17, H(variationA, variationBHistory), undefined, ['변형 B · 턴부터 체크, 팟 29칩', unknown]),
-      explain('6-c', '변형 C · 뒤늦게 다시 올렸어요', `${lateRaise} 플랍 체크 뒤 턴 4♠가 나왔어요. BB가 8칩을 베팅하자 상대는 총 24칩으로 레이즈했어요.`, H(cTurn, variationCTurn)),
+      explain('6-c', '변형 C · 플랍에 체크하고 턴에 레이즈했어요', `${lateRaise} 플랍 체크 뒤 턴 4♠가 나왔어요. BB가 8칩을 베팅하자 상대는 총 24칩으로 레이즈했어요.`, H(cTurn, variationCTurn)),
       question(18, H(cTurn, variationCTurn), H(cTurn, variationCTurn, cJudgment), ['변형 C · 턴 베팅 전 팟 13칩 · BB 8칩 베팅 · 상대 레이즈 · 이번 베팅 총액 24칩', lateRaise]),
       explain('6-c-river', '같은 변형 C를 리버까지 봐요', 'BB가 추가로 16칩 콜해 팟 61칩이 됐어요. 리버 6♦에서 BB 체크 뒤 상대가 40칩 베팅했어요.', H(cRiver, variationCRiver, [], { pot: 61, bet: 40 })),
       question(19, H(cRiver, variationCRiver, [], { pot: 61, bet: 40 }), H(cRiver, variationCRiver, ['셋 · 이 패로 베팅했을 가능성 유지', '탑 페어 · 턴에서 낮게 봤던 후보', '플러시 · 이 패로 베팅했을 가능성 유지', '페어 없음 · 블러프 가능'], { pot: 61, bet: 40 }), ['변형 C · 리버에서 블러프를 얼마나 자주 하는지는 아직 모름', lateRaise]),
