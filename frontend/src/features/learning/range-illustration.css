@@ -11,6 +11,7 @@
 .range-history h3 { font-size: 0.85rem; margin: 0 0 0.5rem; }
 .range-history ol { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; padding: 0; margin: 0; }
 .range-history li { font-size: 0.8rem; }
+.range-history__opponent { color: var(--color-felt-800); font-weight: 700; }
 .range-history li + li::before { content: '→'; margin-right: 0.4rem; }
 .range-history > div + div { margin-top: 0.75rem; }
 .range-positions { display: grid; gap: 1rem; }

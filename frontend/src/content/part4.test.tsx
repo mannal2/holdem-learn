@@ -126,3 +126,24 @@ it('개념 설명은 판단 방법만 가르치고 별도 카드 예시는 원�
     cleanup()
   }
 })
+
+it('상대 BB의 행동만 강조하고 버튼 행동·팟 정보·선택지는 강조하지 않는다', () => {
+  const view = draw(31)
+  const history = screen.getByRole('group', { name: '지금까지의 행동' })
+  const highlighted = Array.from(history.querySelectorAll('strong')).map(element => element.textContent?.trim())
+  expect(highlighted).toEqual(['상대 BB가 4칩 추가 콜', '상대 BB 체크', '상대 BB 콜', '상대 BB 체크', '상대 BB 총 36칩으로 레이즈', '상대 BB 60칩 베팅'])
+  expect(view.container.querySelector('fieldset strong')).toBeNull()
+  expect(highlighted.join(' ')).not.toMatch(/버튼|팟/)
+})
+
+it('변형 B의 상대 체크를 강조하며 행동 비교 예시는 그대로 둔다', () => {
+  draw(17)
+  const history = screen.getByRole('group', { name: '지금까지의 행동' })
+  expect(Array.from(history.querySelectorAll('strong')).map(element => element.textContent?.trim())).toEqual([
+    '상대 버튼이 총 6칩으로 첫 레이즈', '상대 버튼 8칩 베팅', '상대 버튼 체크', '상대 버튼 체크',
+  ])
+  cleanup()
+  const step = steps.find(step => step.id === 'p4-seq-1-reraise')!
+  const view = render(<LearningStepRenderer step={step} selectedOptionIds={[]} feedbackVisible={false} onSelect={() => {}} />)
+  expect(view.container.querySelector('.range-history strong')).toBeNull()
+})

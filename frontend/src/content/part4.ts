@@ -9,12 +9,12 @@ const explain = (id: string, title: string, body: string, visual?: RuleVisual, c
 const summary = (id: string, body: string, bullets: string[], visual?: RuleVisual): LearningStep => ({ id: `p4-seq-${id}`, type: 'summary', title: '핵심 정리', body, bullets, visual })
 
 const setup = '6명 · 각 200칩 · 스몰 블라인드(SB) 1칩 / 빅 블라인드(BB) 2칩'
-const opening = '가정: 초반 자리는 좋은 패 위주로 참가. 앞사람이 모두 폴드한 버튼에서는 더 다양한 패로 참가.'
-const repeat = '가정: 페어·드로우가 없으면 플랍·턴 연속 베팅은 드묾.'
-const noTripleBluff = '가정: 페어 없이 플랍·턴 베팅 후 리버까지 블러프하는 일은 드묾. 드로우 실패도 포함.'
-const riverRead = ['가정: 플러시가 가능한 공용 카드에서 원 페어로 큰 베팅은 드묾.', noTripleBluff]
-const lateRaise = ['가정: 원 페어로 턴에 큰 레이즈는 드묾.', '블러프 레이즈는 가능.']
-const unknown = '플랍 이후 베팅·체크 습관은 아직 모름.'
+const opening = '상대 성향: 초반 자리는 좋은 패 위주로 참가. 앞사람이 모두 폴드한 버튼에서는 더 다양한 패로 참가.'
+const repeat = '상대 성향: 페어·드로우가 없으면 플랍·턴 연속 베팅은 드묾.'
+const noTripleBluff = '상대 성향: 페어 없이 플랍·턴 베팅 후 리버까지 블러프하는 일은 드묾. 드로우 실패도 포함.'
+const riverRead = ['상대 성향: 플러시가 가능한 공용 카드에서 원 페어로 큰 베팅은 드묾.', noTripleBluff]
+const lateRaise = ['상대 성향: 원 페어로 턴에 큰 레이즈는 드묾.', '상대 성향: 블러프 레이즈는 가능.']
+const unknown = '상대 성향: 플랍 이후 베팅·체크 성향은 아직 모름.'
 const start = ['프리플랍: UTG·HJ·CO 폴드', '상대 버튼이 총 6칩으로 첫 레이즈', 'SB 폴드 → BB가 4칩 추가 콜 · 팟 13칩']
 const flopBet = [...start, '플랍: BB 체크 → 상대 버튼 8칩 베팅']
 const flopCall = [...flopBet, 'BB 8칩 콜 · 팟 29칩']
@@ -101,7 +101,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
         { label: '초반 자리', value: '좋은 패 위주로 참가', detail: '뒤에 행동할 사람이 많이 남아 있어요.' },
         { label: '버튼 자리', value: '조금 덜 좋은 패로도 참가', detail: '앞사람들이 모두 폴드했다면 더 다양한 패로 참가할 수 있어요.' },
       ])),
-      question(1, undefined, undefined, [opening, '같은 상대가 같은 보유 칩으로 초반 자리와 버튼에서 각각 첫 레이즈한 상황입니다.', '두 상황 모두 앞사람들은 전부 폴드했습니다.']),
+      question(1, undefined, undefined, ['상대 성향은 문제에서 주어진 정보입니다.', opening, '같은 상대가 같은 보유 칩으로 초반 자리와 버튼에서 각각 첫 레이즈한 상황입니다.', '두 상황 모두 앞사람들은 전부 폴드했습니다.']),
       explain('1-reraise', '먼저 올렸나요, 다시 올렸나요?', '아무도 레이즈하지 않았을 때 처음 올리면 첫 레이즈예요. 앞사람의 레이즈를 다시 올리면 재레이즈예요.', { kind: 'action-lines', rows: [{ label: '첫 레이즈', actions: ['앞사람 모두 폴드 → 버튼이 처음 레이즈'] }, { label: '재레이즈', actions: ['앞사람이 레이즈 → 버튼이 다시 레이즈'] }] }),
       question(2, lines('재레이즈한 상황', ['UTG 총 6칩 레이즈 → HJ·CO 폴드', '버튼 총 20칩으로 재레이즈']), undefined, [opening]),
       question(3, scene('', [], start), undefined, [opening]),
@@ -126,7 +126,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
       question(7, { kind: 'bet-comparison', rows: [{ label: '이번 판', pot: 13, bet: 8 }, { label: '팟이 80칩인 상황', pot: 80, bet: 8 }] }, { kind: 'bet-comparison', rows: [{ label: '이번 판', pot: 13, bet: 8 }, { label: '팟이 80칩인 상황', pot: 80, bet: 8 }], showRatio: true }),
       explain('3-reasons', '패마다 베팅 이유가 달라요', '더 약한 패의 콜로 칩을 얻거나, 상대를 폴드시키려고 베팅할 수 있어요. 드로우라면 상대의 폴드와 다음 카드의 완성을 함께 기대할 수 있어요.'),
       question(8, H(hFlop, flopBet, [], { pot: 13, bet: 8 }), H(hFlop, flopBet, hStates, { pot: 13, bet: 8 }), ['BB 체크 → 상대 버튼 8칩 베팅 · 베팅 전 팟 13칩']),
-      explain('3-uncertainty', '패의 강도와 상대가 가졌을 가능성은 달라요', '족보의 강도는 카드로 확인해요. 상대가 그 패를 가졌을 가능성은 자리·행동·상대 습관을 근거로 판단해요.', facts([{ label: '족보 강도', value: '카드로 비교' }, { label: '보유 가능성', value: '자리·행동·상대 습관으로 추론' }])),
+      explain('3-uncertainty', '패의 강도와 상대가 가졌을 가능성은 달라요', '족보의 강도는 카드로 확인해요. 상대가 그 패를 가졌을 가능성은 자리·행동·상대 성향을 근거로 판단해요.', facts([{ label: '족보 강도', value: '카드로 비교' }, { label: '보유 가능성', value: '자리·행동·상대 성향으로 추론' }])),
       question(9, H(hFlop, flopBet, [], { pot: 13, bet: 8 }), H(hFlop, flopBet, hStates, { pot: 13, bet: 8 }), [unknown]),
       summary('3-summary', '첫 베팅에는 여러 이유가 있어요. 다음 정보로 판단을 이어가요.', ['A~D는 모두 가능해요. 어느 패가 더 유력한지는 다음 카드와 행동을 더 봐야 해요.', 'BB가 8칩 콜했어요. 팟 29칩으로 턴을 봐요.'], H(hFlop, flopCall)),
     ],
@@ -136,8 +136,8 @@ export const part4Lessons: Record<string, LessonDefinition> = {
     steps: [
       question(10, H(hTurn, flopCall), H(hTurn, flopCall, hStates)),
       question(11, H(hTurn, turnBet, [], { pot: 29, bet: 20 }), H(hTurn, turnBet, hTurnJudgment, { pot: 29, bet: 20 }), [repeat, '여기서 드로우: 한 장으로 완성할 플러시·스트레이트 드로우']),
-      question(12, H(hTurn, turnBet, [], { pot: 29, bet: 20 }), undefined, ['페어·드로우 없이 연속 베팅하는지는 모름.', '카드·베팅은 앞 문제와 같음.']),
-      summary('4-summary', '새 카드 → 후보 상태 → 새 행동 → 판단 변화 순서로 봐요.', ['가능성 ↑: 상대가 이 패를 가졌을 가능성을 이전보다 높게 봄', '가능성 ↓: 상대가 이 패를 가졌을 가능성을 이전보다 낮게 봄', '판단 유지: 가능성을 바꿀 근거가 없음', '가능성을 바꾸는 근거는 카드·행동·상대 습관이에요.', 'BB가 20칩 콜해 팟은 69칩이 됐어요.']),
+      question(12, H(hTurn, turnBet, [], { pot: 29, bet: 20 }), undefined, ['상대 성향: 페어·드로우 없이 연속 베팅하는지는 모름.', '카드·베팅은 앞 문제와 같음.']),
+      summary('4-summary', '새 카드 → 후보 상태 → 새 행동 → 판단 변화 순서로 봐요.', ['가능성 ↑: 상대가 이 패를 가졌을 가능성을 이전보다 높게 봄', '가능성 ↓: 상대가 이 패를 가졌을 가능성을 이전보다 낮게 봄', '판단 유지: 가능성을 바꿀 근거가 없음', '가능성을 바꾸는 근거는 카드·행동·상대 성향이에요.', 'BB가 20칩 콜해 팟은 69칩이 됐어요.']),
     ],
   },
   'range-river': {
@@ -146,7 +146,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
       question(13, H(hRiver, turnCall), flushFeedback(H(hRiver, turnCall, ['셋', '탑 페어', '플러시 완성', '페어 없음']), 2, 'Ks 8s Qs')),
       question(14, H(hRiver, riverBet, [], { pot: 69, bet: 52 }), H(hRiver, riverBet, hRiverJudgment, { pot: 69, bet: 52 }), [...riverRead]),
       question(15, H(hRiver, riverBet, [], { pot: 69, bet: 52 }), H(hRiver, riverBet, hRiverJudgment, { pot: 69, bet: 52 }), [repeat, ...riverRead]),
-      summary('5-summary', '마지막 베팅만 보지 말고, 처음부터 나온 카드와 행동을 함께 봐요.', ['더 유력한 후보와 다른 가능한 후보를 함께 남겨요.', '실제 상대 패를 보지 않아도 판단의 근거를 설명할 수 있어요.'], facts([{ label: '프리플랍', value: '자리·첫 행동으로 출발 후보' }, { label: '플랍', value: '족보·드로우와 베팅 이유' }, { label: '턴', value: '두 번의 베팅과 상대 습관 → D 가능성 ↓' }, { label: '리버', value: '완성된 족보와 큰 베팅 → A·C가 더 유력' }])),
+      summary('5-summary', '마지막 베팅만 보지 말고, 처음부터 나온 카드와 행동을 함께 봐요.', ['더 유력한 후보와 다른 가능한 후보를 함께 남겨요.', '실제 상대 패를 보지 않아도 판단의 근거를 설명할 수 있어요.'], facts([{ label: '프리플랍', value: '자리·첫 행동으로 출발 후보' }, { label: '플랍', value: '족보·드로우와 베팅 이유' }, { label: '턴', value: '두 번의 베팅과 상대 성향 → D 가능성 ↓' }, { label: '리버', value: '완성된 족보와 큰 베팅 → A·C가 더 유력' }])),
     ],
   },
   'range-variations': {
@@ -156,7 +156,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
       question(16, H(variationA, riverBet, [], { pot: 69, bet: 52 }), H(variationA, riverBet, ['셋\n판단 유지 · 셋으로 베팅 가능', '탑 페어\n판단 유지 · 탑 페어로 베팅 가능', '플러시 완성 실패\n가능성 ↓ · 드로우로 계속 베팅하다 리버에서도 블러프하는 일은 드묾', '페어 없음\n가능성 ↓ · 리버까지 블러프를 이어가는 일은 드묾'], { pot: 69, bet: 52 }), ['변형 A · 리버 6♦ · 플랍·턴 카드와 베팅은 앞서 본 판과 같음', noTripleBluff]),
       question(17, H(variationA, variationBHistory), undefined, ['변형 B · 턴부터 체크, 팟 29칩', unknown]),
       question(18, H(cTurn, variationCTurn), H(cTurn, variationCTurn, cJudgment), ['변형 C · 턴 베팅 전 팟 13칩 · BB 8칩 베팅 · 상대 레이즈 · 이번 베팅 총액 24칩', ...lateRaise]),
-      question(19, H(cRiver, variationCRiver, [], { pot: 61, bet: 40 }), H(cRiver, variationCRiver, ['셋 · 판단 유지 · 이 패로 리버 베팅을 설명할 수 있음', '탑 페어 · 판단 유지 · 턴에서 가능성을 낮게 본 후보', '플러시 · 판단 유지 · 이 패로 리버 베팅을 설명할 수 있음', '페어 없음 · 블러프 가능'], { pot: 61, bet: 40 }), ['변형 C · 리버 블러프 빈도는 아직 모름.', ...lateRaise]),
+      question(19, H(cRiver, variationCRiver, [], { pot: 61, bet: 40 }), H(cRiver, variationCRiver, ['셋 · 판단 유지 · 이 패로 리버 베팅을 설명할 수 있음', '탑 페어 · 판단 유지 · 턴에서 가능성을 낮게 본 후보', '플러시 · 판단 유지 · 이 패로 리버 베팅을 설명할 수 있음', '페어 없음 · 블러프 가능'], { pot: 61, bet: 40 }), ['변형 C · 리버', '상대 성향: 리버 블러프 빈도는 아직 모름.', ...lateRaise]),
       summary('6-summary', '행동 하나로 패를 단정하지 않아요.', ['계속 베팅해도 처음부터 가장 좋은 패였다고 단정할 수 없어요.', '체크는 원 페어·드로우·강한 패로도 가능해요.', '턴 레이즈는 새로 완성된 플러시·플랍부터 있던 셋·블러프 모두로 설명할 수 있어요.']),
     ],
   },
@@ -175,7 +175,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
       question(28, scene('', [], gStart), undefined, ['사례 G · 이번에 관찰하는 상대는 BB', '콜에도 페어·높은 카드·같은 무늬 연결 카드 등이 가능해요.']),
       question(29, scene(gFlop, g, gFlopHistory), scene(gFlop, g, gFlopHistory, ['거샷 드로우 · 9가 필요', '탑 페어', '셋', '페어 없음']), ['사례 G · 상대 BB의 플랍 콜 · 콜 후 팟 29칩']),
       question(30, scene(gTurn, g, gTurnHistory), scene(gTurn, g, gTurnHistory, ['스트레이트\n가능성 ↑ · 완성 뒤 체크-레이즈', '탑 페어\n가능성 ↓ · 원 페어로 큰 레이즈는 드묾', '셋\n판단 유지 · 셋으로 콜한 뒤 레이즈할 수 있음', '거샷 드로우 · 10이 필요\n판단 유지 · 블러프 가능']), ['사례 G · 턴 시작 팟 29칩 · 버튼 12칩 베팅 · 상대 BB 레이즈 · 이번 베팅 총액 36칩', ...lateRaise]),
-      question(31, scene(gRiver, g, gRiverHistory, [], { pot: 101, bet: 60 }), scene(gRiver, g, gRiverHistory, ['스트레이트 · 판단 유지 · 이 패로 리버 베팅을 설명할 수 있음', '탑 페어 · 판단 유지 · 턴에서 가능성을 낮게 본 후보', '셋 · 판단 유지 · 이 패로 리버 베팅을 설명할 수 있음', '페어 없음 · 드로우 실패, 블러프 가능'], { pot: 101, bet: 60 }), ['사례 G · 리버 블러프 빈도는 아직 모름.', ...lateRaise]),
+      question(31, scene(gRiver, g, gRiverHistory, [], { pot: 101, bet: 60 }), scene(gRiver, g, gRiverHistory, ['스트레이트 · 판단 유지 · 이 패로 리버 베팅을 설명할 수 있음', '탑 페어 · 판단 유지 · 턴에서 가능성을 낮게 본 후보', '셋 · 판단 유지 · 이 패로 리버 베팅을 설명할 수 있음', '페어 없음 · 드로우 실패, 블러프 가능'], { pot: 101, bet: 60 }), ['사례 G · 리버', '상대 성향: 리버 블러프 빈도는 아직 모름.', ...lateRaise]),
       summary('7-summary', '새 카드와 행동을 보고 더 유력한 후보와 그 이유를 판단했어요.', ['자리·첫 행동으로 가능한 패를 생각해요.', '플랍의 족보·드로우를 확인하고 베팅 이유를 생각해요.', '턴·리버 카드와 행동으로 후보를 다시 판단해요.', '더 유력한 후보와 남아 있는 다른 가능성을 이유와 함께 설명해요.']),
     ],
   },

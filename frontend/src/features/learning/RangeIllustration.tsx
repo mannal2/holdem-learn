@@ -14,7 +14,7 @@ export function RangeIllustration({ visual }: { visual: RangeSceneVisual }) {
   return <div className="range-scene rule-illustration">
     {visual.board.length > 0 && <div className="poker-table__board" role="group" aria-label="공용 카드"><h3 className="poker-table__label">공용 카드 · {stageNames[visual.stage]} {visual.board.length}장</h3><div className="poker-table__cards">{cards(visual.board, visual.boardHighlights, visual.markLatestCard)}</div></div>}
     {visual.holeCards && <div className="poker-table__hand" role="group" aria-label="내 개인 카드"><h3 className="poker-table__label">내 카드 · 2장</h3><div className="poker-table__cards">{cards(visual.holeCards, visual.holeHighlights)}</div></div>}
-    {visual.history && <div className="range-history" role="group" aria-label="지금까지의 행동"><h3>지금까지의 행동</h3><ol>{visual.history.map((action, index) => <li key={index}>{action}</li>)}</ol></div>}
+    {visual.history && <div className="range-history" role="group" aria-label="지금까지의 행동"><h3>지금까지의 행동</h3><ol>{visual.history.map((action, index) => <li key={index}>{action.split(/(상대 (?:버튼|BB)[^→·]*)/g).map((segment, i) => segment.startsWith('상대 ') ? <strong className="range-history__opponent" key={i}>{segment}</strong> : segment)}</li>)}</ol></div>}
     {visual.candidates.length > 0 && <section aria-label="가능한 상대 패 예시"><h3>가능한 상대 패 예시</h3><div className="range-candidates">{visual.candidates.map(candidate => <div className="range-candidate" role="group" aria-label={candidate.label} key={candidate.label}><h4>{candidate.label}</h4><div className="poker-table__cards">{cards(candidate.cards, candidate.highlightedCards)}</div>{candidate.status && <p className="range-candidate__status">{candidate.status}</p>}</div>)}</div></section>}
   </div>
 }

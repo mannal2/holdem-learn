@@ -119,7 +119,7 @@ test('종합 도전 9/12·10/12 경계와 오답의 카드·행동·조건을 �
     await expect(page.getByText(`${correctCount}/12 정답 · ${Math.round(correctCount / 12 * 100)}%`, { exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Part 결과 보기' })).toHaveCount(correctCount === 10 ? 1 : 0)
     await expect(page.getByRole('group', { name: '지금까지의 행동' }).last()).toContainText('상대 BB 60칩 베팅')
-    await expect(page.getByText('사례 G · 리버 블러프 빈도는 아직 모름.', { exact: true })).toBeVisible()
+    await expect(page.getByText('상대 성향: 리버 블러프 빈도는 아직 모름.', { exact: true })).toBeVisible()
     await page.getByRole('link', { name: '← 레슨 목록', exact: true }).click()
     const row = page.locator('.lesson-list li').filter({ has: page.getByText(lesson.title, { exact: true }) })
     await expect(row.getByText(correctCount === 9 ? '재도전 필요' : '완료', { exact: true })).toBeVisible()
