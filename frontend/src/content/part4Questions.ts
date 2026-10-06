@@ -43,7 +43,7 @@ export const part4Questions = [
     "prompt": "현재 플랍에서 후보 A(88)와 B(AK)의 족보를 바르게 비교한 것은?",
     "options": [
       "A는 셋, B는 원 페어라 A가 강하다.",
-      "A는 원 페어, B는 원 페어라 B가 강하다.",
+      "A는 8 페어, B는 K 페어라 B가 강하다.",
       "A는 투 페어, B는 셋이라 B가 강하다."
     ],
     "correct": [
