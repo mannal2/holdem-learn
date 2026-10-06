@@ -2,6 +2,30 @@ import { createMemoryStorage, progressFixture } from '../../test/progressFixture
 import { createEmptyProgress } from './createEmptyProgress'
 import { LocalProgressRepository } from './LocalProgressRepository'
 
+it.each([
+  ['range-preflop', 4, 'p4-seq-q02', 2, 'p4-seq-q01'],
+  ['range-flop', 2, 'p4-seq-q04', 6, 'p4-seq-q06'],
+  ['range-flop', 4, 'p4-seq-q05', 6, 'p4-seq-q06'],
+] as const)('%s의 %s번째 구판 문제 답만 정리하고 위치·다른 답·완료 기록은 보존한다', async (lessonId, index, oldId, otherIndex, otherId) => {
+  const storage = createMemoryStorage()
+  const point = { partId: 'part-4', lessonId, stepIndex: index, answered: 2, correct: 2,
+    submittedStepIds: [oldId, otherId], selectedOptionIds: [`${oldId}-option-0`],
+    selectionsByStep: { [index]: [`${oldId}-option-0`], [otherIndex]: [`${otherId}-option-0`] } }
+  const saved = { ...progressFixture, recent: point, resumeByPart: { 'part-0': { partId: 'part-0', lessonId: 'goal-and-cards', stepIndex: 1 }, 'part-4': point },
+    completedPartIds: ['part-0', 'part-4'],
+    completedLessonIds: [lessonId], lessonResults: { [lessonId]: { answered: 3, correct: 3, bestPercentage: 100, attempts: 1 } } }
+  storage.setItem('holdem-learning-progress', JSON.stringify(saved))
+  const { progress, recovered } = await new LocalProgressRepository(storage).load()
+  expect(recovered).toBe(false)
+  expect(progress.recent).toEqual({ ...point, answered: 1, correct: 1, submittedStepIds: [otherId],
+    selectedOptionIds: [], selectionsByStep: { [otherIndex]: [`${otherId}-option-0`] }, missedStepIds: [] })
+  expect(progress.resumeByPart['part-4']).toEqual(progress.recent)
+  expect(progress.resumeByPart['part-0']).toEqual(saved.resumeByPart['part-0'])
+  expect(progress.completedLessonIds).toEqual(saved.completedLessonIds)
+  expect(progress.completedPartIds).toEqual(saved.completedPartIds)
+  expect(progress.lessonResults).toEqual(saved.lessonResults)
+})
+
 it('저장한 진도를 다시 불러온다', async () => {
   const repository = new LocalProgressRepository(createMemoryStorage())
   await repository.save(progressFixture)

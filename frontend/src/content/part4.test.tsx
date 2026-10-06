@@ -9,7 +9,7 @@ import type { RangeSceneVisual } from '../types/course'
 
 const steps = Object.values(part4Lessons).flatMap(lesson => lesson.steps)
 const questions = steps.filter(step => step.type === 'single-choice' || step.type === 'multi-choice')
-const question = (n: number) => questions.find(step => step.id === `p4-seq-q${String(n).padStart(2, '0')}`)!
+const question = (n: number) => questions.find(step => step.id === `p4-seq-q${String(n).padStart(2, '0')}` || step.supersedes === `p4-seq-q${String(n).padStart(2, '0')}`)!
 const draw = (n: number, submitted = false) => render(<LearningStepRenderer step={question(n)} selectedOptionIds={[]} feedbackVisible={submitted} onSelect={() => {}} />)
 const scene = (n: number) => question(n)?.visual as RangeSceneVisual
 
