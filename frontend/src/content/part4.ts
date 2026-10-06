@@ -38,9 +38,8 @@ function scene(board: string, candidates: string[], history: string[], states: s
 const H = (board: string, history: string[], states: string[] = [], bet?: RangeSceneVisual['bet']) => scene(board, h, history, states, bet)
 const facts = (items: { label: string; value: string; detail?: string }[]): RuleVisual => ({ kind: 'draw-facts', items })
 const lines = (label: string, actions: string[]): RuleVisual => ({ kind: 'action-lines', rows: [{ label, actions }] })
-const positions: RuleVisual = { kind: 'position-scenes', rows: [{ label: '같은 상대 · UTG 첫 레이즈', activeGroup: 'early' }, { label: '같은 상대 · 앞선 세 사람 폴드 후 버튼 첫 레이즈', activeGroup: 'late', foldedBefore: true }] }
 
-function question(n: number, visual: RuleVisual, feedbackVisual?: RuleVisual, conditions: string[] = []): LearningStep {
+function question(n: number, visual: RuleVisual | undefined, feedbackVisual?: RuleVisual, conditions: string[] = []): LearningStep {
   const data = part4Questions[n - 1]
   const id = `p4-seq-q${String(n).padStart(2, '0')}`
   const options = data.options.map((label, index) => ({ id: `${id}-option-${index}`, label }))
@@ -99,7 +98,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
         { label: '초반 자리', value: '좋은 패 위주로 참가', detail: '뒤에 행동할 사람이 많이 남아 있어요.' },
         { label: '버튼 자리', value: '조금 덜 좋은 패로도 참가', detail: '앞사람들이 모두 폴드했다면 더 다양한 패로 참가할 수 있어요.' },
       ])),
-      question(1, positions, undefined, [opening, '앞사람 모두 폴드 후 첫 레이즈 · 같은 상대, 같은 보유 칩']),
+      question(1, undefined, undefined, [opening, '같은 상대가 같은 보유 칩으로 초반 자리와 버튼에서 각각 첫 레이즈한 상황입니다.', '두 상황 모두 앞사람들은 전부 폴드했습니다.']),
       explain('1-reraise', '먼저 올렸나요, 다시 올렸나요?', '아무도 레이즈하지 않았을 때 처음 올리면 첫 레이즈예요. 앞사람의 레이즈를 다시 올리면 재레이즈예요.', { kind: 'action-lines', rows: [{ label: '이번 판 · 첫 레이즈', actions: start }, { label: '별도 비교 · 재레이즈', actions: ['UTG 총 6칩 레이즈 → HJ·CO 폴드', '버튼 총 20칩으로 재레이즈'] }] }),
       question(2, lines('별도 비교 · 재레이즈', ['UTG 총 6칩 레이즈 → HJ·CO 폴드', '버튼 총 20칩으로 재레이즈']), undefined, [opening]),
       question(3, scene('', [], start), undefined, [opening]),
