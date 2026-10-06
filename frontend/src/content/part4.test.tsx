@@ -9,7 +9,7 @@ import type { RangeSceneVisual } from '../types/course'
 
 const steps = Object.values(part4Lessons).flatMap(lesson => lesson.steps)
 const questions = steps.filter(step => step.type === 'single-choice' || step.type === 'multi-choice')
-const question = (n: number) => questions.find(step => step.id === `p4-seq-q${String(n).padStart(2, '0')}` || step.supersedes === `p4-seq-q${String(n).padStart(2, '0')}`)!
+const question = (n: number) => questions.find(step => step.id.startsWith(`p4-seq-q${String(n).padStart(2, '0')}-v`))!
 const draw = (n: number, submitted = false) => render(<LearningStepRenderer step={question(n)} selectedOptionIds={[]} feedbackVisible={submitted} onSelect={() => {}} />)
 const scene = (n: number) => question(n)?.visual as RangeSceneVisual
 
@@ -116,7 +116,7 @@ it('후보 충돌·잘못된 강조·금액·공개 단계 오류를 계속 거�
 
 it('개념 설명은 판단 방법만 가르치고 별도 카드 예시는 원래 후보 문제 뒤에 나온다', () => {
   const flop = part4Lessons['range-flop'].steps
-  expect(flop.findIndex(step => step.id === 'p4-seq-2-both')).toBeGreaterThan(flop.findIndex(step => step.id === 'p4-seq-q06'))
+  expect(flop.findIndex(step => step.id === 'p4-seq-2-both')).toBeGreaterThan(flop.findIndex(step => step.id === question(6).id))
   for (const id of ['p4-seq-3-size', 'p4-seq-3-reasons', 'p4-seq-3-uncertainty']) {
     const step = steps.find(step => step.id === id)!
     expect(step.type).toBe('explanation')
@@ -125,6 +125,35 @@ it('개념 설명은 판단 방법만 가르치고 별도 카드 예시는 원�
     expect(view.container).not.toHaveTextContent(/13칩|80칩|A·B|C는|D는/)
     cleanup()
   }
+})
+
+it('문장 길이만으로 종합 도전을 통과하지 못하고 단일 정답 위치가 고르게 배분된다', () => {
+  const positions = [0, 0, 0]
+  let longestCorrect = 0
+  for (const step of questions) {
+    if (step.type !== 'single-choice') continue
+    const index = step.options.findIndex(option => option.id === step.correctOptionId)
+    positions[index]++
+    const lengths = step.options.map(option => option.label.replace(/\s/g, '').length)
+    if (lengths[index] === Math.max(...lengths) && lengths.filter(length => length === lengths[index]).length === 1) longestCorrect++
+  }
+  expect(positions).toEqual([9, 9, 9])
+  expect(longestCorrect).toBeLessThanOrEqual(5)
+  const challenge = part4Lessons['range-hand-challenge']
+  const bestLongestScore = challenge.steps.filter(step => {
+    if (step.type !== 'single-choice' && step.type !== 'multi-choice') return false
+    const longest = Math.max(...step.options.map(option => option.label.replace(/\s/g, '').length))
+    const keys = step.type === 'single-choice' ? [step.correctOptionId] : step.correctOptionIds
+    return keys.every(id => step.options.find(option => option.id === id)!.label.replace(/\s/g, '').length === longest)
+  }).length
+  expect(hasPassed(bestLongestScore, 12, challenge.passingPercentage!)).toBe(false)
+})
+
+it('성향 적용 문제는 큰 행동의 범위와 직접 드로우의 뜻을 제공한다', () => {
+  for (const n of [11, 12, 22]) expect(question(n).conditions?.join(' ')).toContain('한 장으로 완성할')
+  for (const n of [14, 15, 23]) expect(question(n).conditions?.join(' ')).toContain('이번 리버 베팅은 큰 베팅에 해당')
+  for (const n of [18, 30]) expect(question(n).conditions?.join(' ')).toContain('이번 턴 레이즈는 큰 레이즈에 해당')
+  expect(question(28).conditions?.join(' ')).toContain('콜 성향은 아직 모름')
 })
 
 it('상대 BB의 행동만 강조하고 버튼 행동·팟 정보·선택지는 강조하지 않는다', () => {

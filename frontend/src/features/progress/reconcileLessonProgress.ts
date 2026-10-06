@@ -5,17 +5,18 @@ import type { LearningProgress, ResumePoint } from '../../types/progress'
 function reconcilePoint(point: ResumePoint): ResumePoint {
   const lesson = getLesson(point.lessonId)
   if (!lesson) return point
-  const replaced = lesson.steps.flatMap((step, index) => step.supersedes && (step.type === 'single-choice' || step.type === 'multi-choice') ? [{ step, index }] : [])
+  const replaced = lesson.steps.flatMap((step, index) => step.supersedes && (step.type === 'single-choice' || step.type === 'multi-choice')
+    ? [{ step, index, oldIds: Array.isArray(step.supersedes) ? step.supersedes : [step.supersedes] }] : [])
   const submitted = point.submittedStepIds ?? []
-  const removed = submitted.filter(id => replaced.some(({ step }) => step.supersedes === id))
+  const removed = submitted.filter(id => replaced.some(({ oldIds }) => oldIds.includes(id)))
   const removedMissed = (point.missedStepIds ?? []).filter(id => removed.includes(id))
   const selections = { ...point.selectionsByStep }
   let selectedOptionIds = point.selectedOptionIds
   let changed = removed.length > 0
-  for (const { step, index } of replaced) {
+  for (const { step, index, oldIds } of replaced) {
     const valid = new Set(step.options.map(option => option.id))
     const oldSelection = selections[index]
-    if (oldSelection?.some(id => !valid.has(id)) || removed.includes(step.supersedes!)) {
+    if (oldSelection?.some(id => !valid.has(id)) || (oldIds.some(id => removed.includes(id)) && !submitted.includes(step.id))) {
       delete selections[index]
       changed = true
     }
@@ -33,6 +34,8 @@ function reconcilePoint(point: ResumePoint): ResumePoint {
 }
 
 export function reconcileLessonProgress(progress: LearningProgress): LearningProgress {
-  return { ...progress, recent: progress.recent ? reconcilePoint(progress.recent) : null,
-    resumeByPart: Object.fromEntries(Object.entries(progress.resumeByPart).map(([id, point]) => [id, reconcilePoint(point)])) }
+  const recent = progress.recent ? reconcilePoint(progress.recent) : null
+  const entries = Object.entries(progress.resumeByPart).map(([id, point]) => [id, reconcilePoint(point)] as const)
+  if (recent === progress.recent && entries.every(([id, point]) => point === progress.resumeByPart[id])) return progress
+  return { ...progress, recent, resumeByPart: Object.fromEntries(entries) }
 }

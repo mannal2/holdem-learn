@@ -3,12 +3,22 @@ import { progressWithCompletedPart0, progressWithFailedPart1Challenge } from '..
 import { renderAppWithProgress } from '../test/renderApp'
 import { createEmptyProgress } from '../features/progress/createEmptyProgress'
 
-it.each([['range-turn', 'p4-seq-q11', 29, 20], ['range-hand-challenge', 'p4-seq-q31', 101, 60]] as const)('%s result preserves bet context', async (lessonId, stepId, pot, bet) => {
+it.each([['range-turn', 'p4-seq-q11-v2', 29, 20], ['range-hand-challenge', 'p4-seq-q31-v2', 101, 60]] as const)('%s result preserves bet context', async (lessonId, stepId, pot, bet) => {
   const progress = createEmptyProgress()
   progress.lessonResults[lessonId] = { answered: 1, correct: 0, bestPercentage: 0, attempts: 1, missedStepIds: [stepId] }
   renderAppWithProgress(progress, `/results/part-4/${lessonId}`)
   expect(await screen.findByRole('group', { name: '이번 베팅' })).toHaveTextContent(`베팅 전 팟 ${pot}칩상대 베팅 ${bet}칩`)
   expect(screen.getByLabelText('이번 상황의 조건')).toBeVisible()
+})
+
+it.each(['p4-seq-q02', 'p4-seq-q02-v2'])('%s의 과거 오답에 새 해설을 붙이지 않고 점수와 변경 안내를 보여준다', async stepId => {
+  const progress = createEmptyProgress()
+  progress.lessonResults['range-preflop'] = { answered: 3, correct: 2, bestPercentage: 100, attempts: 2, missedStepIds: [stepId] }
+  renderAppWithProgress(progress, '/results/part-4/range-preflop')
+  expect(await screen.findByText('2/3 정답 · 67%')).toBeVisible()
+  expect(screen.getByText('최고 기록 100%')).toBeVisible()
+  expect(screen.getByText(/일부 문제가 바뀌었어요/)).toBeVisible()
+  expect(screen.queryByRole('listitem')).not.toBeInTheDocument()
 })
 
 it.each([4, 5])('Part 3 종합 결과 %i/6에서 통과 여부와 종합연습 링크를 표시한다', async correct => {

@@ -28,7 +28,7 @@ it('이어하기가 없는 구판 완료 기록도 지우고 다른 Part의 최�
 
 it('개정판 선택·제출·완료 기록은 재로딩해도 삭제하지 않는다', async () => {
   const storage = createMemoryStorage()
-  const point = { partId: 'part-4', lessonId: 'range-turn', lessonRevision: 1, stepIndex: 1, answered: 2, correct: 2, submittedStepIds: ['p4-seq-q10', 'p4-seq-q11'], selectedOptionIds: ['p4-seq-q11-option-2'], selectionsByStep: { 1: ['p4-seq-q11-option-2'] } }
+  const point = { partId: 'part-4', lessonId: 'range-turn', lessonRevision: 1, stepIndex: 1, answered: 2, correct: 2, submittedStepIds: ['p4-seq-q10-v2', 'p4-seq-q11-v2'], selectedOptionIds: ['p4-seq-q11-v2-option-2'], selectionsByStep: { 1: ['p4-seq-q11-v2-option-2'] } }
   const current = { ...progressFixture, recent: point, resumeByPart: { 'part-0': other, 'part-4': point }, completedLessonIds: ['range-preflop', 'range-hand-challenge'], completedPartIds: ['part-4'], lessonResults: { 'range-hand-challenge': { answered: 12, correct: 10, bestPercentage: 83, attempts: 1 } } }
   const repository = new LocalProgressRepository(storage)
   await repository.save(current)

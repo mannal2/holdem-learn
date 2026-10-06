@@ -13,7 +13,7 @@ export interface HandRankingExample {
 
 interface BaseStep {
   id: string
-  supersedes?: string
+  supersedes?: string | string[]
   title?: string
   visual?: RuleVisual
 }

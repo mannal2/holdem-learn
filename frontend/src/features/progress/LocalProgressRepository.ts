@@ -54,7 +54,7 @@ export class LocalProgressRepository implements ProgressRepository {
       const migrated = migratePart4StepOrder(removeLegacyPart4(parsed))
       if (!isProgress(migrated)) throw new Error('invalid progress')
       const progress = reconcileLessonProgress(migrated)
-      if (migrated !== parsed) {
+      if (progress !== parsed) {
         // 쓰기 실패를 손상된 데이터로 처리해 원본까지 지우지 않습니다.
         try { storage.setItem(KEY, JSON.stringify(progress)) }
         catch { return { progress, recovered: false, saveFailed: true } }
