@@ -2,6 +2,12 @@ import { screen, waitFor } from '@testing-library/react'
 import { renderAppAt } from '../test/renderApp'
 import { createEmptyProgress } from '../features/progress/createEmptyProgress'
 
+it.each(['/learn/part-4/board-and-candidates', '/results/part-4/range-challenge'])('구판 주소 %s를 개정 Part 4 목록으로 안내한다', async path => {
+  const { router } = renderAppAt(path)
+  await waitFor(() => expect(router.state.location.pathname).toBe('/parts/part-4'))
+  expect(await screen.findByText('프리플랍에서 출발 후보를 잡아요')).toBeVisible()
+})
+
 it('Part 0 첫 Lesson을 열어 첫 설명을 보여준다', async () => {
   renderAppAt('/learn/part-0/goal-and-cards')
   expect(await screen.findByRole('heading', { name: '게임의 목표와 카드 구성' })).toBeInTheDocument()

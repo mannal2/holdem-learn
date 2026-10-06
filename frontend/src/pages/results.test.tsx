@@ -3,21 +3,12 @@ import { progressWithCompletedPart0, progressWithFailedPart1Challenge } from '..
 import { renderAppWithProgress } from '../test/renderApp'
 import { createEmptyProgress } from '../features/progress/createEmptyProgress'
 
-it('교체된 구판 오답에 새 해설을 붙이지 않고 기존 점수와 안내를 표시한다', async () => {
-  const progress = createEmptyProgress()
-  progress.lessonResults['range-challenge'] = { answered: 6, correct: 4, bestPercentage: 100, attempts: 2, missedStepIds: ['p4-q23', 'p4-q24'] }
-  renderAppWithProgress(progress, '/results/part-4/range-challenge')
-  expect(await screen.findByText('4/6 정답 · 67%')).toBeVisible()
-  expect(screen.getByText('일부 문제가 바뀌었어요. 이전 점수는 유지하며, 변경된 문제의 옛 해설은 표시하지 않아요.')).toBeVisible()
-  expect(screen.queryByText('이번 큰 베팅은 어떻게 볼까요?')).not.toBeInTheDocument()
-  expect(screen.getByText('최고 기록 100%')).toBeVisible()
-})
-
-it.each([['updating-a-range', 'p4-q18-v2', 100], ['range-challenge', 'p4-q24-v2', 120]])('%s의 턴 오답 결과에도 팟·베팅액을 보존한다', async (lessonId, stepId, chips) => {
+it.each([['range-turn', 'p4-seq-q11', 29, 20], ['range-hand-challenge', 'p4-seq-q31', 101, 60]] as const)('%s result preserves bet context', async (lessonId, stepId, pot, bet) => {
   const progress = createEmptyProgress()
   progress.lessonResults[lessonId] = { answered: 1, correct: 0, bestPercentage: 0, attempts: 1, missedStepIds: [stepId] }
   renderAppWithProgress(progress, `/results/part-4/${lessonId}`)
-  expect(await screen.findByRole('group', { name: '이번 베팅' })).toHaveTextContent(`베팅 전 팟 ${chips}칩상대 베팅 ${chips}칩`)
+  expect(await screen.findByRole('group', { name: '이번 베팅' })).toHaveTextContent(`베팅 전 팟 ${pot}칩상대 베팅 ${bet}칩`)
+  expect(screen.getByLabelText('이번 상황의 조건')).toBeVisible()
 })
 
 it.each([4, 5])('Part 3 종합 결과 %i/6에서 통과 여부와 종합연습 링크를 표시한다', async correct => {

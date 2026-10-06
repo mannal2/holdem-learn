@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { getLesson, getPart } from '../content/catalog'
+import { legacyPart4LessonIds } from '../content/legacyPart4'
 import { hasPassed } from '../features/learning/calculateResult'
 import { LearningSession } from '../features/learning/LearningSession'
 import { useProgress } from '../features/progress/progressContext'
@@ -27,6 +28,7 @@ export function LearningPage() {
   }, [status, part, lesson, searchParams, setSearchParams, confirmStep, location.key])
 
   if (status === 'loading') return <main className="page-shell"><p>진도를 불러오는 중이에요…</p></main>
+  if (partId === 'part-4' && lessonId && legacyPart4LessonIds.includes(lessonId)) return <Navigate to="/parts/part-4" replace />
   if (!part || !lesson || !part.lessonIds.includes(lesson.id)) {
     return <main className="page-shell page-shell--centered"><section className="message-panel"><h1>학습 내용을 찾을 수 없어요</h1><p>주소가 잘못됐거나 아직 준비되지 않은 Lesson입니다.</p><Link className="primary-link" to="/">Part 0으로 돌아가기</Link></section></main>
   }

@@ -1,141 +1,115 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import { part4, part4Lessons } from './part4'
-import { courseCatalog, getNextPartId } from './catalog'
+import { courseCatalog } from './catalog'
 import { validateCourse } from './validateCourse'
 import { LearningStepRenderer } from '../features/learning/LearningStepRenderer'
 import { evaluateAnswer } from '../features/learning/evaluateAnswer'
-import { getPracticePart } from '../features/practice/practice'
-import { RuleIllustration } from '../features/learning/RuleIllustration'
-import type { LearningStep, RangeSceneVisual } from '../types/course'
+import { hasPassed } from '../features/learning/calculateResult'
+import type { RangeSceneVisual } from '../types/course'
 
 const steps = Object.values(part4Lessons).flatMap(lesson => lesson.steps)
 const questions = steps.filter(step => step.type === 'single-choice' || step.type === 'multi-choice')
-const draw = (id: string, submitted = false) => render(<LearningStepRenderer step={steps.find(step => step.id === id)!} selectedOptionIds={[]} feedbackVisible={submitted} onSelect={() => {}} />)
+const question = (n: number) => questions.find(step => step.id === `p4-seq-q${String(n).padStart(2, '0')}`)!
+const draw = (n: number, submitted = false) => render(<LearningStepRenderer step={question(n)} selectedOptionIds={[]} feedbackVisible={submitted} onSelect={() => {}} />)
+const scene = (n: number) => question(n)?.visual as RangeSceneVisual
 
-it('턴 후보를 유지하면서 같은 상황의 팟·베팅 금액도 보여준다', () => {
-  const visual = { kind: 'range-scene', stage: 'turn', board: [{ rank: 'J', suit: 'hearts' }, { rank: '8', suit: 'hearts' }, { rank: '2', suit: 'clubs' }, { rank: '4', suit: 'hearts' }], candidates: [], bet: { pot: 100, bet: 100 } } as RangeSceneVisual
-  render(<RuleIllustration visual={visual} />)
-  expect(screen.getByRole('group', { name: '공용 카드' }).querySelectorAll('.playing-card')).toHaveLength(4)
-  expect(screen.getByRole('group', { name: '이번 베팅' })).toHaveTextContent('베팅 전 팟 100칩상대 베팅 100칩')
-})
-
-it('7레슨·56화면·24문제를 기존 카탈로그에 연결하며 추가연습은 등록하지 않는다', () => {
+it('승인한 7레슨·64화면·31문제를 유효한 카탈로그로 제공한다', () => {
   expect(validateCourse(courseCatalog)).toEqual([])
-  expect(getNextPartId(courseCatalog, 'part-3')).toBe('part-4')
-  expect(part4.lessonIds.map(id => part4Lessons[id].steps.length)).toEqual([7, 8, 8, 8, 8, 9, 8])
-  expect(steps).toHaveLength(56)
-  expect(questions).toHaveLength(24)
-  expect(part4Lessons['range-challenge'].passingPercentage).toBe(80)
-  expect(getPracticePart('range-challenge')).toBeUndefined()
+  expect(part4.lessonIds.map(id => part4Lessons[id].steps.length)).toEqual([8, 8, 8, 8, 8, 10, 14])
+  expect(steps).toHaveLength(64)
+  expect(questions).toHaveLength(31)
 })
 
-it.each(['p4-q18-v2', 'p4-q24-v2'])('%s의 제출 후에도 턴 판단에 사용한 베팅 금액을 유지한다', id => {
-  draw(id, true)
-  expect(screen.getByRole('group', { name: '이번 베팅' })).toBeVisible()
-  const step = steps.find(step => step.id === id)!
-  if (step.type !== 'single-choice') throw new Error('턴 판단은 단일 선택 문제입니다.')
-  expect((step.feedbackVisual as RangeSceneVisual).bet).toEqual((step.visual as RangeSceneVisual).bet)
-})
-
-it('턴 후보 그림에서도 올바르지 않은 팟·베팅액을 거부한다', () => {
-  const step = steps.find(step => step.id === 'p4-q18-v2')!
-  const visual = step.visual as RangeSceneVisual
-  for (const bet of [{ pot: 0, bet: 100 }, { pot: 100, bet: -1 }, { pot: Infinity, bet: 100 }]) {
-    expect(validateCourse({ parts: [], lessons: { test: { id: 'test', title: '', objective: '', steps: [{ ...step, visual: { ...visual, bet } }] } } })).toContain('Step p4-q18-v2의 팟·베팅 금액이 올바르지 않습니다.')
-  }
-})
-
-it.each(questions)('$id는 제출 전 정답 강조·후보 상태를 노출하지 않는다', step => {
-  const view = render(<LearningStepRenderer step={step} selectedOptionIds={[]} feedbackVisible={false} onSelect={() => {}} />)
-  expect(view.container.querySelector('.poker-table__highlight')).toBeNull()
-  expect(view.container.querySelector('.range-candidate__status')).toBeNull()
-  if (step.visual?.kind === 'range-scene' && !step.visual.holeCards) expect(screen.queryByRole('group', { name: '내 개인 카드' })).not.toBeInTheDocument()
-  cleanup()
-})
-
-it('플러시 완성 해설은 원래 보드·내 카드·세 후보를 유지하고 다섯 장만 강조한다', () => {
-  draw('p4-q17', true)
-  expect(screen.getByRole('group', { name: '공용 카드' }).querySelectorAll('.playing-card')).toHaveLength(4)
-  expect(screen.getByRole('group', { name: '내 개인 카드' }).querySelectorAll('.playing-card')).toHaveLength(2)
-  expect(screen.getAllByRole('group', { name: /^후보 / })).toHaveLength(3)
-  expect(document.querySelectorAll('.poker-table__highlight')).toHaveLength(5)
-  expect(screen.getByRole('group', { name: '내 개인 카드' }).querySelectorAll('.poker-table__highlight')).toHaveLength(0)
-  expect(screen.getByText('턴 · 추가')).toBeVisible()
-})
-
-it('자리 그림은 상대 자리라고 표시하고 내 카드와 행동 기록도 보존한다', () => {
-  draw('p4-6-start')
-  expect(screen.getByRole('group', { name: '딜러 버튼 · 상대 자리' })).toBeInTheDocument()
-  expect(screen.getByRole('group', { name: '내 개인 카드' }).querySelectorAll('.playing-card')).toHaveLength(2)
-  expect(screen.getByRole('group', { name: '지금까지의 행동' })).toHaveTextContent('나 BB 콜')
-  expect(screen.getByText('딜러 버튼 · 뒤에 SB·BB가 남아 있어요')).toBeVisible()
-})
-
-it('충돌 문제의 A·B·C는 다음 플랍에도 같은 패이고 D만 제외한다', () => {
-  const view = draw('p4-q15')
-  expect(screen.getAllByRole('group', { name: /^후보 / })).toHaveLength(4)
-  expect(screen.getByRole('group', { name: '후보 A' })).toHaveTextContent('K♥Q♥')
-  expect(screen.getByRole('group', { name: '후보 B' })).toHaveTextContent('J♠10♠')
-  expect(screen.getByRole('group', { name: '후보 C' })).toHaveTextContent('8♣8♦')
-  expect(screen.getByRole('group', { name: '후보 D' })).toHaveTextContent('A♥Q♣')
-  const question = questions.find(step => step.id === 'p4-q15')!
-  expect(evaluateAnswer(question, ['p4-q15-option-0']).isCorrect).toBe(true)
-  expect(question.options.find(option => option.id === 'p4-q15-option-0')?.label).toBe('후보 D · A♥ Q♣')
-  view.unmount()
-  draw('p4-6-flop')
-  expect(screen.getAllByRole('group', { name: /^후보 / })).toHaveLength(3)
-  expect(screen.getByRole('group', { name: '후보 B' })).toHaveTextContent('J♠10♠')
-  expect(screen.queryByRole('group', { name: '후보 D' })).not.toBeInTheDocument()
-})
-
-it('후보 제목으로만 안내하고 반복 문구와 후보별 예시 표기를 넣지 않는다', () => {
-  draw('p4-1-range')
-  expect(screen.getByRole('heading', { name: '가능한 상대 패 예시' })).toBeVisible()
-  expect(screen.getByRole('heading', { name: 'AK' })).toBeVisible()
-  expect(screen.queryByText('각각 따로 가정한 패예요.')).not.toBeInTheDocument()
-  expect(screen.queryByText('가능한 패의 일부만 보여줘요.')).not.toBeInTheDocument()
-})
-
-it('팟 대비 크기는 제출 전 금액만, 제출 후 정확한 두 비율을 표시한다', () => {
-  const view = draw('p4-q12')
-  expect(view.container.querySelector('.bet-comparison__track')).toBeNull()
-  view.unmount()
-  draw('p4-q12', true)
-  expect(screen.getByText('팟의 50%')).toBeVisible()
-  expect(screen.getByText('팟의 20%')).toBeVisible()
-})
-
-it('종합 도전의 카드 상황은 앞선 레슨과 다르다', () => {
-  const sceneKeys = (items: LearningStep[]) => items.flatMap(step => step.visual?.kind === 'range-scene' && step.visual.board.length ? [JSON.stringify(step.visual.board)] : [])
-  const previous = new Set(part4.lessonIds.slice(0, -1).flatMap(id => sceneKeys(part4Lessons[id].steps)))
-  const challenge = sceneKeys(part4Lessons['range-challenge'].steps)
-  expect(challenge).toHaveLength(4)
-  expect(new Set(challenge).size).toBe(4)
-  expect(challenge.every(key => !previous.has(key))).toBe(true)
-})
-
-it('일반 레슨의 정답 위치도 한쪽에만 고정하지 않는다', () => {
-  for (const lesson of Object.values(part4Lessons)) {
-    const single = lesson.steps.filter(step => step.type === 'single-choice')
-    expect(new Set(single.map(step => step.options.findIndex(option => option.id === step.correctOptionId))).size).toBeGreaterThan(1)
-  }
-})
-
-it('24문제의 정답을 독립 제작 기준과 대조해 채점한다', () => {
-  const expected = [[1], [0], [1], [0], [0], [1], [0], [1, 2], [0, 2], [0], [1], [0], [1], [0], [3], [0, 1, 2], [2], [1], [1], [0], [2], [0, 1], [1], [0]]
-  questions.forEach((step, index) => {
-    expect(evaluateAnswer(step, expected[index].map(n => step.options[n].id)).isCorrect).toBe(true)
+it('31문제의 채점은 승인한 독립 정답 기준과 일치한다', () => {
+  const answers = [[1], [2], [0, 2, 3], [0], [1], [2], [2], [1, 2, 3], [0], [1], [2], [0], [1], [2], [0], [1], [1, 2], [0], [2], [1], [2], [0], [1], [0], [2], [1], [0], [2], [0, 1, 2], [0], [1]]
+  expect(questions.length).toBe(answers.length)
+  answers.forEach((indices, index) => {
+    const step = question(index + 1)
+    expect(step, `Q${index + 1}`).toBeDefined()
+    expect(evaluateAnswer(step, indices.map(i => step.options[i].id)).isCorrect).toBe(true)
     expect(evaluateAnswer(step, []).isCorrect).toBe(false)
   })
 })
 
-it('정상 후보의 충돌·잘못된 강조를 검사하고 의도된 불가능 후보만 구분한다', () => {
-  const step = steps.find(s => s.id === 'p4-q15')!
-  const visual = step.visual as RangeSceneVisual
-  const check = (visual: RangeSceneVisual, explanation = false) => validateCourse({ parts: [], lessons: { test: { id: 'test', title: '', objective: '', steps: [explanation ? { id: 'invalid', type: 'explanation', body: '', visual } : { ...step, visual }] } } })
-  expect(check(visual)).toEqual([])
-  expect(check({ ...visual, candidates: visual.candidates.map(c => ({ ...c, impossibleExample: undefined })) })).toContain('Step p4-q15의 후보 D가 공개 카드와 충돌합니다.')
-  expect(check(visual, true)).toContain('Step invalid의 불가능 후보 예시는 충돌을 찾는 문제에서만 허용합니다.')
-  expect(check({ ...visual, boardHighlights: [{ rank: 'K', suit: 'clubs' }] })).toContain('Step p4-q15의 후보 그림 강조가 실제 카드와 다릅니다.')
-  expect(check({ ...visual, stage: 'turn' })).toContain('Step p4-q15의 후보 그림 공개 단계와 장수가 다릅니다.')
+it('같은 후보를 유지하고 플랍·턴·리버를 순서대로 공개한다', () => {
+  expect(scene(4)?.candidates.map(c => c.cards)).toEqual([
+    [{ rank: '8', suit: 'clubs' }, { rank: '8', suit: 'diamonds' }],
+    [{ rank: 'A', suit: 'hearts' }, { rank: 'K', suit: 'diamonds' }],
+    [{ rank: 'A', suit: 'spades' }, { rank: 'J', suit: 'spades' }],
+    [{ rank: 'A', suit: 'clubs' }, { rank: 'J', suit: 'diamonds' }],
+  ])
+  for (const n of [5, 6, 8, 9, 10, 11, 12, 13, 14, 15]) expect(scene(n).candidates.map(c => c.cards)).toEqual(scene(4).candidates.map(c => c.cards))
+  expect(scene(9).board).toHaveLength(3)
+  expect(scene(11).board).toEqual([...scene(9).board, { rank: '2', suit: 'hearts' }])
+  expect(scene(14).board).toEqual([...scene(11).board, { rank: 'Q', suit: 'spades' }])
+  expect(scene(9).bet).toEqual({ pot: 13, bet: 8 })
+  expect(scene(11).bet).toEqual({ pot: 29, bet: 20 })
+  expect(scene(14).bet).toEqual({ pot: 69, bet: 52 })
+  expect(scene(10).history?.join(' ')).not.toContain('20칩 베팅')
+})
+
+it('종합은 새 핸드 세 개를 각각 프리플랍부터 리버까지 연결한다', () => {
+  expect(question(20)).toBeDefined()
+  for (const start of [20, 24, 28]) {
+    const scenes = [0, 1, 2, 3].map(offset => scene(start + offset))
+    expect(scenes.map(s => s.board.length)).toEqual([0, 3, 4, 5])
+    expect(scenes[0].candidates).toHaveLength(0)
+    expect(scenes[2].board.slice(0, 3)).toEqual(scenes[1].board)
+    expect(scenes[3].board.slice(0, 4)).toEqual(scenes[2].board)
+    expect(scenes[3].candidates.map(c => c.cards)).toEqual(scenes[1].candidates.map(c => c.cards))
+    expect(scenes[1].board).not.toEqual(scene(4).board)
+  }
+  expect(scene(30).bet).toBeUndefined()
+  expect(question(30).conditions?.join(' ')).toContain('버튼 12칩 베팅 · 상대 BB 총 36칩 레이즈')
+  expect(scene(31).bet).toEqual({ pot: 101, bet: 60 })
+  expect(scene(31).history?.join(' ')).toContain('상대 BB')
+})
+
+it.each(Array.from({ length: 31 }, (_, i) => i + 1))('Q%i 제출 전에는 정답 상태·강조를 노출하지 않는다', n => {
+  expect(question(n)).toBeDefined()
+  const view = draw(n)
+  expect(view.container.querySelector('.poker-table__highlight')).toBeNull()
+  expect(view.container.querySelector('.range-candidate__status')).toBeNull()
+  cleanup()
+})
+
+it('턴 해설은 낮아짐·유지의 근거와 같은 팟을 보여준다', () => {
+  expect(question(11)).toBeDefined()
+  draw(11, true)
+  expect(screen.getByRole('group', { name: '후보 D' })).toHaveTextContent('가능성 ↓')
+  expect(screen.getByRole('group', { name: '후보 A' })).toHaveTextContent('판단 유지')
+  expect(screen.getByRole('group', { name: '이번 베팅' })).toHaveTextContent('29칩')
+  expect(question(11).conditions?.join(' ')).toContain('두 번')
+})
+
+it('리버 완성은 네 후보를 유지하며 플러시 다섯 장을 강조한다', () => {
+  expect(question(13)).toBeDefined()
+  draw(13, true)
+  expect(screen.getAllByRole('group', { name: /^후보 / })).toHaveLength(4)
+  expect(document.querySelectorAll('.poker-table__highlight')).toHaveLength(5)
+  expect(screen.getByText('리버 · 추가')).toBeVisible()
+  expect(screen.queryByRole('group', { name: '내 개인 카드' })).not.toBeInTheDocument()
+})
+
+it('종합은 9/12 미통과·10/12 통과다', () => {
+  const lesson = part4Lessons['range-hand-challenge']
+  expect(lesson).toBeDefined()
+  expect(hasPassed(9, 12, lesson.passingPercentage!)).toBe(false)
+  expect(hasPassed(10, 12, lesson.passingPercentage!)).toBe(true)
+})
+
+it.each([20, 24])('Q%i 프리플랍 조건은 앞으로의 공격 지속·약화를 예고하지 않는다', n => {
+  const view = draw(n)
+  expect(view.container).not.toHaveTextContent(/끝까지 공격|공격이 약해지/)
+  cleanup()
+})
+
+it('후보 충돌·잘못된 강조·금액·공개 단계 오류를 계속 거부한다', () => {
+  const step = question(14)
+  const original = scene(14)
+  const check = (visual: RangeSceneVisual) => validateCourse({ parts: [], lessons: { test: { id: 'test', title: '', objective: '', steps: [{ ...step, visual }] } } })
+  expect(check({ ...original, candidates: [{ label: '충돌', cards: [original.board[0], original.candidates[0].cards[0]] }] })).not.toEqual([])
+  expect(check({ ...original, boardHighlights: [{ rank: '2', suit: 'clubs' }] })).not.toEqual([])
+  expect(check({ ...original, bet: { pot: 0, bet: 52 } })).not.toEqual([])
+  expect(check({ ...original, stage: 'flop' })).not.toEqual([])
 })
