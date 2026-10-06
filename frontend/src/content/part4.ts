@@ -92,7 +92,7 @@ export const part4: PartDefinition = {
 
 export const part4Lessons: Record<string, LessonDefinition> = {
   'range-preflop': {
-    id: 'range-preflop', title: '프리플랍에서 출발 후보를 잡아요', objective: '상대 자리와 첫 행동으로 가능한 패 종류를 생각해요.',
+    id: 'range-preflop', title: '프리플랍의 출발 후보', objective: '상대 자리와 첫 행동으로 가능한 패 종류를 생각해요.',
     steps: [
       explain('1-start', '이 자리에서 어떤 패로 참가했을까요?', '상대에게 가능하다고 생각하는 패들의 범위를 레인지라고 해요. 한 판을 리버까지 따라가며 후보를 갱신해 볼게요.', { kind: 'position-scenes', rows: [{ label: '대표 핸드 H · 상대는 버튼', activeGroup: 'late', foldedBefore: true }], history: [setup, ...start] }),
       explain('1-position', '같은 상대라도 자리에 따라 달라요', '초반에는 뒤에 결정할 사람이 많아요. 앞선 사람들이 폴드한 버튼에서는 페어·같은 무늬 연결 카드 등도 더 넓게 고려해요.', positions),
@@ -105,7 +105,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
     ],
   },
   'range-flop': {
-    id: 'range-flop', title: '플랍이 후보를 어떻게 바꿨나요?', objective: '앞서 잡은 같은 후보들의 현재 패와 드로우를 확인해요.',
+    id: 'range-flop', title: '플랍과 후보의 상태', objective: '앞서 잡은 같은 후보들의 현재 패와 드로우를 확인해요.',
     steps: [
       explain('2-start', '같은 네 후보가 플랍을 만났어요', '상대 버튼이 첫 레이즈하고 BB가 콜했어요. 후보의 카드는 그대로 두고 공용 카드를 붙여 봐요.', H(hFlop, start)),
       explain('2-made', '현재 패를 다시 읽어요', 'A는 개인 카드 8 두 장과 공용 카드 8이 만나 셋이에요. B는 개인 카드 K와 공용 카드 K가 만나 탑 페어예요.', H(hFlop, start, hStates)),
@@ -118,7 +118,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
     ],
   },
   'range-flop-actions': {
-    id: 'range-flop-actions', title: '플랍 행동으로 후보를 비교해요', objective: '같은 후보에 베팅 이유와 팟 대비 크기를 연결해요.',
+    id: 'range-flop-actions', title: '플랍 행동과 후보의 가능성', objective: '같은 후보에 베팅 이유와 팟 대비 크기를 연결해요.',
     steps: [
       explain('3-bet', '상대가 처음으로 베팅했어요', 'BB가 체크하자 상대 버튼이 8칩을 베팅했어요. 앞서 생각한 네 후보에 이 행동을 연결해 봐요.', H(hFlop, flopBet, hStates, { pot: 13, bet: 8 })),
       explain('3-size', '가운데 모인 칩과 비교해요', '팟은 베팅 전 가운데 모인 칩이에요. 13칩 팟의 8칩은 절반보다 크지만, 80칩 팟의 8칩은 10분의 1이에요.', { kind: 'bet-comparison', rows: [{ label: '대표 핸드 H', pot: 13, bet: 8 }, { label: '별도 금액 비교', pot: 80, bet: 8 }], showRatio: true }),
@@ -131,7 +131,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
     ],
   },
   'range-turn': {
-    id: 'range-turn', title: '턴에서 후보의 무게를 조정해요', objective: '새 카드와 두 번째 행동을 보고 이전 판단을 갱신해요.',
+    id: 'range-turn', title: '턴에서의 후보 갱신', objective: '새 카드와 두 번째 행동을 보고 이전 판단을 갱신해요.',
     steps: [
       explain('4-card', '턴 · 2♥가 나왔어요', '플랍에서 상대가 베팅하고 BB가 콜했어요. 이번 카드가 기존 네 후보를 어떻게 바꿨는지 먼저 봐요.', H(hTurn, flopCall)),
       question(10, H(hTurn, flopCall), H(hTurn, flopCall, hStates)),
@@ -144,7 +144,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
     ],
   },
   'range-river': {
-    id: 'range-river', title: '리버에서 전체 흐름을 정리해요', objective: '마지막 카드와 행동을 앞선 추론에 연결해요.',
+    id: 'range-river', title: '리버의 최종 판단', objective: '마지막 카드와 행동을 앞선 추론에 연결해요.',
     steps: [
       explain('5-card', '리버 · Q♠가 나왔어요', '턴까지 남겨둔 후보를 그대로 봐요. 새 카드로 완성된 패와 여전히 남은 패를 확인해요.', H(hRiver, turnCall)),
       question(13, H(hRiver, turnCall), flushFeedback(H(hRiver, turnCall, ['셋', '탑 페어', '플러시 완성', '페어 없음']), 2, 'Ks 8s Qs')),
@@ -157,7 +157,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
     ],
   },
   'range-variations': {
-    id: 'range-variations', title: '흐름이 달라지면 추론도 달라져요', objective: '세 가지 다른 전개에서 같은 사고 과정을 적용해요.',
+    id: 'range-variations', title: '다른 흐름에 적용하기', objective: '세 가지 다른 전개에서 같은 사고 과정을 적용해요.',
     steps: [
       explain('6-start', '이제는 별도의 비교 전개예요', '같은 시작 후보와 플랍에서 다른 카드·행동이 이어졌다고 비교해요. 앞서 본 대표 핸드의 실제 흐름이 바뀌는 것은 아니에요.', H(hFlop, start)),
       explain('6-a', '변형 A · 계속 공격했지만 드로우는 실패했어요', `${noTripleBluff} 이번에는 리버 6♦라서 C의 플러시가 완성되지 않았어요.`, H(variationA, riverBet, ['셋', '탑 페어', '페어 없음 · 플러시 드로우 실패', '페어 없음'], { pot: 69, bet: 52 })),
@@ -172,7 +172,7 @@ export const part4Lessons: Record<string, LessonDefinition> = {
     ],
   },
   'range-hand-challenge': {
-    id: 'range-hand-challenge', title: '새 핸드로 상대 패를 추론해요', objective: '세 핸드를 프리플랍부터 리버까지 연결해 판단해요.', passingPercentage: 80,
+    id: 'range-hand-challenge', title: '상대 패 추론 종합 도전', objective: '세 핸드를 프리플랍부터 리버까지 연결해 판단해요.', passingPercentage: 80,
     steps: [
       explain('7-start', '새 핸드 세 개를 끝까지 읽어보세요', '각 핸드의 프리플랍·플랍·턴·리버를 네 문제로 따라가요. 총 12문제 중 10문제 이상이면 통과예요.'),
       question(20, scene('', [], start), undefined, ['사례 E · 프리플랍', opening]),
