@@ -311,6 +311,8 @@ Part 2의 짧은 설명에도 기존 화면 종류를 유지하면서 `visual`�
 
 공용 카드의 `CommunityCards` 타입에 네 장을 추가했다. 기존 세 장·다섯 장은 그대로 유지한다. 선택 문제의 `table.stage`는 선택적인 값이며 생략하면 `flop`이다. 기존 Part 0·1·2 콘텐츠를 바꾸지 않고도 Part 3의 턴 문제는 네 장, 리버 공개는 다섯 장을 보여준다. `PokerTable`의 공개 규칙은 그대로 사용하므로 정의돼 있어도 아직 숨긴 카드의 값은 표시하지 않는다.
 
+`ExplanationStep.conditions`는 설명 본문과 분리할 가정 목록이다. 공통 `LearningStepRenderer`가 선택 문제와 같은 `rule-conditions` 스타일로 표시한다. Part 4의 상대 습관을 짧게 나눠 보여주며, 이 필드가 없는 기존 설명 화면은 그대로 유지한다.
+
 `ExplanationStep.cardGroups`는 이름과 카드 배열을 가진 설명용 묶음이다. 플러시 아웃츠 아홉 장, 스트레이트 아웃츠 여덟 장·네 장을 같은 `PlayingCard`로 표시한다. `LearningStepRenderer`의 설명 분기에서 이 배열을 읽고, `lesson-card-groups.css`가 작은 화면에서 줄바꿈한다. 완성 족보 설명은 사용자가 카드 출처를 놓치지 않도록 별도 5장 묶음 대신 `table-reveal`의 전체 카드 배치와 강조를 사용한다. 기존 족보 강한 순서 목록과 역할이 달라 `HandRankingList`를 아웃츠에 재사용하지 않았다.
 
 `validateCourse`는 내 카드와 보드 내부의 같은 카드 중복, 공개 단계보다 부족한 공용 카드, 설명 카드 묶음 내부 중복을 검사한다. 비교 예시 사이 공용 카드가 다시 나오는 것은 허용한다. 플랍 단계에서 다섯 장을 정의하고 뒤 두 장을 숨기는 기존 체험도 유지한다.

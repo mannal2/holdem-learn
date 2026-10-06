@@ -51,6 +51,7 @@ export type RuleVisual =
 export interface ExplanationStep extends BaseStep {
   type: 'explanation'
   body: string
+  conditions?: string[]
   handExamples?: HandRankingExample[]
   cardGroups?: { label: string; cards: PlayingCard[] }[]
 }

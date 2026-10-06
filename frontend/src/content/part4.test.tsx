@@ -79,7 +79,7 @@ it('턴 해설은 낮아짐·유지의 근거와 같은 팟을 보여준다', ()
   expect(screen.getByRole('group', { name: '후보 D' })).toHaveTextContent('가능성 ↓')
   expect(screen.getByRole('group', { name: '후보 A' })).toHaveTextContent('판단 유지')
   expect(screen.getByRole('group', { name: '이번 베팅' })).toHaveTextContent('29칩')
-  expect(question(11).conditions?.join(' ')).toContain('플랍·턴에 연속 베팅')
+  expect(question(11).conditions?.join(' ')).toContain('플랍·턴 연속 베팅')
 })
 
 it('리버 완성은 네 후보를 유지하며 플러시 다섯 장을 강조한다', () => {

@@ -64,3 +64,17 @@ it('설명에서 아웃츠 아홉 장을 실제 카드로 보여준다', () => {
   expect(group.querySelectorAll('.playing-card')).toHaveLength(9)
   expect(screen.getByLabelText('하트 킹')).toBeInTheDocument()
 })
+
+it('설명 화면의 가정을 본문과 분리해 조건 목록으로 표시한다', () => {
+  const explanation: ExplanationStep = {
+    id: 'assumption-explanation', type: 'explanation', title: '상대 습관', body: '관찰한 행동을 함께 봅니다.',
+    conditions: ['원 페어로 큰 레이즈는 드묾.', '블러프 레이즈는 가능.'],
+  }
+  const { rerender } = render(<LearningStepRenderer step={explanation} selectedOptionIds={[]} feedbackVisible={false} onSelect={() => {}} />)
+  const conditions = screen.getByRole('list', { name: '이번 상황의 조건' })
+  expect(conditions).toHaveClass('rule-conditions')
+  expect(conditions.querySelectorAll('li')).toHaveLength(2)
+  expect(conditions).toHaveTextContent('블러프 레이즈는 가능.')
+  rerender(<LearningStepRenderer step={{ ...explanation, conditions: undefined }} selectedOptionIds={[]} feedbackVisible={false} onSelect={() => {}} />)
+  expect(screen.queryByRole('list', { name: '이번 상황의 조건' })).not.toBeInTheDocument()
+})
